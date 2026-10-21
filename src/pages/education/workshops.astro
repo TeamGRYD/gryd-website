@@ -1,0 +1,9 @@
+---
+import EventCategory from '../../components/EventCategory.astro';
+const faq = [
+  { q: 'What does a GRYD workshop cover?', a: 'Our two-day Polkadot India workshops cover the history of Web3, blockchain fundamentals (consensus, cryptography, Merkle trees), DeFi and NFTs, the Polkadot ecosystem and JAM, protocol development (FRAME pallets, ink!, EVMs) and runtime development with the Polkadot SDK and XCM.' },
+  { q: 'Can GRYD run a Web3 workshop at my college?', a: 'Yes. We have run workshops at IIT Roorkee, IIT Bombay, MIT Manipal, NITK Surathkal, Sahyadri College and ATLAS SkillTech University, usually with the campus tech club. Contact us through the delegate page.' },
+  { q: 'Do I need blockchain experience to attend?', a: 'No. Our workshops start from first principles. Basic programming knowledge helps for the hands-on sessions.' },
+];
+---
+<EventCategory type="workshop" groupBy="series" faq={faq} h1="Web3 & Polkadot workshops" accent="for students." intro="Hands-on, multi-session workshops at universities and codecamps, from Web3 history to runtime development. Two days is our standard format, because one day was never enough." />

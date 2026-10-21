@@ -1,0 +1,22 @@
+---
+/** Event as a compact card (used in grids). */
+import type { CollectionEntry } from 'astro:content';
+import { eventTypeLabel, eventRoleLabel, fmtRange } from '../lib/labels';
+interface Props { event: CollectionEntry<'events'>; compact?: boolean }
+const { event, compact = false } = Astro.props;
+const d = event.data;
+const href = d.highlight ? `/education/events/${event.id}/` : d.lumaUrl ?? d.sources[0].url;
+const ext = !d.highlight;
+const upcoming = d.start.getTime() > Date.now();
+---
+<article class="cell-link flex h-full flex-col p-5">
+  <div class="flex items-center justify-between gap-2">
+    <span class:list={['tag', upcoming ? 'tag-solid' : '']}>{upcoming ? 'Upcoming' : eventTypeLabel[d.type]}</span>
+    <span class="label">{eventRoleLabel[d.role]}</span>
+  </div>
+  <p class="num mt-6 text-[0.8rem] text-dim"><time datetime={d.start.toISOString()}>{fmtRange(d.start, d.end)}</time></p>
+  <h3 class:list={['mt-2 font-semibold leading-snug', compact ? 'text-base' : 'text-lg']}>
+    <a href={href} class="stretch" {...(ext ? { rel: 'noopener', target: '_blank' } : {})}>{d.title}{ext && <span class="sr-only"> (opens Luma)</span>}</a>
+  </h3>
+  <p class="label mt-auto pt-5">{d.city}{d.registrations ? ` · ${d.registrations} reg.` : ''} <span class="arrow" aria-hidden="true">{ext ? '↗' : '→'}</span></p>
+</article>

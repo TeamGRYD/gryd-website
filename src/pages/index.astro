@@ -1,0 +1,252 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Wordmark from '../components/Wordmark.astro';
+import Iso from '../components/Iso.astro';
+import SheetHead from '../components/SheetHead.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import PostCard from '../components/PostCard.astro';
+import FieldLog from '../components/FieldLog.astro';
+import OrbitMap from '../components/OrbitMap.astro';
+import Notes from '../components/Notes.astro';
+import Placeholder from '../components/Placeholder.astro';
+import { getCollection } from 'astro:content';
+import { getProjects, getEvents, getPosts, getCurations, getStats, niceFloor } from '../lib/data';
+import { PAGE_META } from '../lib/pages';
+import { faq } from '../lib/schema';
+
+const meta = PAGE_META['/'];
+const projects = await getProjects();
+const featured = projects.filter((p) => p.data.featured).slice(0, 3);
+const events = await getEvents();
+const curations = await getCurations();
+const posts = await getPosts();
+const ackOrder = ['scure-readme', 'polkadot-js-merge', 'ref-1165', 'solidity-hackathon', 'jam-mumbai'];
+const acks = (await getCollection('acknowledgments')).sort((a, b) => ackOrder.indexOf(a.id) - ackOrder.indexOf(b.id));
+const stats = await getStats();
+const rejected = curations.filter((c) => c.data.outcome === 'rejected').length;
+
+const index = [
+  { n: '01', title: 'Builders', href: '/builders/', count: `${projects.length} projects`, scene: 'build', text: 'Grant-funded tools, maintained libraries, launched products.' },
+  { n: '02', title: 'Business', href: '/business/', count: `${curations.length} curations`, scene: 'curate', text: `Proposal curation and audit coordination. ${rejected} didn't pass, and we show them.` },
+  { n: '03', title: 'Education', href: '/education/', count: `${stats.events} events`, scene: 'educate', text: 'Workshops, hackathons, hacker houses and meetups across India.' },
+] as const;
+
+const values = [
+  ['▣', 'Grounded', 'Claims come with links: referenda, repos, event pages.'],
+  ['◇', 'Resilient', 'We kept building after the incentives stopped.'],
+  ['○', 'Welcoming', 'Students and first-time contributors are who we teach.'],
+  ['△', 'Crafted', 'From a cryptography audit to a two-day agenda.'],
+  ['✕', 'Connected', 'Chain-agnostic: Polkadot, Ethereum, Stellar, Monad.'],
+];
+
+const statement = 'A collective of solo contributors who kept showing up after the incentives stopped. Today we maintain public infrastructure, curate cryptographic libraries and teach the next class of Web3 developers.';
+
+const faqItems = [
+  { q: 'What is GRYD?', a: 'GRYD is a collective of Web3 builders, curators and educators from India. We build open-source tools, curate projects through ecosystem funding processes, and run hackathons, workshops, hacker houses and meetups.' },
+  { q: 'Is GRYD the same as Edgetributor SubDAO?', a: 'Yes. GRYD was formerly known as Edgetributor SubDAO, a collective of solo contributors from the Edgeware DAO. Our older work appears under that name.' },
+  { q: 'How do I join a Web3 community in India?', a: 'Come to one of our events or workshops, then pick an open issue or an event role. See <a href="/contribute/">how to contribute</a>.' },
+  { q: 'Does GRYD host hackathons in India?', a: 'Yes. We co-organised the Polkadot AssetHub Hackathon 2025 (finale in Goa), represented Polkadot at ETHIndia 2024, co-hosted two hacker houses in Bengaluru, and mentor and judge at college hackathons. See <a href="/education/hackathons/">our hackathons</a>.' },
+  { q: 'Can GRYD run a workshop at my college?', a: 'We have run two-day Web3 workshops at IIT Roorkee, IIT Bombay, MIT Manipal and NITK Surathkal. <a href="/delegate/">Tell us about your college or club</a>.' },
+  { q: 'Can GRYD help with my Web3 project?', a: 'We help teams with architecture, ecosystem onboarding, grant and OpenGov proposals, audit coordination and launches. <a href="/delegate/">Delegate your work</a> and see <a href="/business/">our past curations</a>, including the ones that didn’t pass.' },
+];
+const plainFaq = faqItems.map((f) => ({ q: f.q, a: f.a.replace(/<[^>]+>/g, '') }));
+---
+<BaseLayout title={meta.title} description={meta.description} schema={[faq(plainFaq)]}>
+  <div class="board">
+    <!-- ═════════ COVER SHEET ═════════ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="cells grid-cols-1 lg:grid-cols-12">
+        <div class="relative flex flex-col lg:col-span-8">
+          <div class="pad pb-0 pt-10 md:pt-16">
+            <Wordmark class="max-w-[11rem] md:max-w-[14rem]" />
+          </div>
+          <div class="pad mt-auto pt-10 md:pt-14">
+            <p class="label"><span class="text-accent">●</span> Season 03 · in session · India</p>
+            <h1 id="hero-title" class="display mt-4 text-[clamp(2.2rem,5.4vw,4.6rem)]">We build, curate &amp; educate for <span class="serif text-grad">Web3.</span></h1>
+            <p class="lede mt-6">GRYD is a <strong class="font-medium text-fg">Web3 community of builders, curators and educators in India</strong>, formerly Edgetributor SubDAO.</p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href="/contribute/" class="btn btn-accent">Become a contributor</a>
+              <a href="/delegate/" class="btn">Delegate your work</a>
+            </div>
+          </div>
+        </div>
+        <div class="relative flex flex-col lg:col-span-4">
+          <div class="relative flex flex-1 items-center justify-center p-8 md:p-10">
+            <Iso scene="city" now label="Isometric drawing: a grid of blocks of different heights, one highlighted" class="max-w-[22rem]" />
+            <span class="callout c2 label">Fig. 0: the collective</span>
+          </div>
+          <dl class="cells grid-cols-2 border-t border-line">
+            <div class="px-4 py-3"><dt class="label">Events</dt><dd class="num mt-1 text-2xl">{stats.events}</dd></div>
+            <div class="px-4 py-3"><dt class="label">Cities</dt><dd class="num mt-1 text-2xl">{stats.cities}</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════════ §01 INDEX ═════════ -->
+    <section class="sheet" aria-labelledby="s01">
+      <SheetHead n="01" title="Sheet index" id="s01" meta="Three disciplines, two ways in" />
+      <div class="cells grid-cols-1 md:grid-cols-3">
+        {index.map((it) => (
+          <a href={it.href} class="cell-link group flex flex-col p-6 md:p-8">
+            <div class="flex items-start justify-between"><span class="label num">§{it.n}</span><span class="arrow text-xl" aria-hidden="true">↗</span></div>
+            <div class="mx-auto my-8 w-40 md:w-48"><Iso scene={it.scene} /></div>
+            <h2 class="title text-[2rem]">{it.title}</h2>
+            <p class="mt-2 text-sm text-dim">{it.text}</p>
+            <p class="label label-fg mt-6">{it.count}</p>
+          </a>
+        ))}
+      </div>
+      <div class="cells grid-cols-1 border-t border-line md:grid-cols-2">
+        <a href="/contribute/" class="join join-a cell-link flex items-center justify-between gap-6 p-6 md:p-8">
+          <div><p class="label !text-accent-ink/70">For builders, students &amp; organisers</p><p class="title mt-3 text-[clamp(1.6rem,3vw,2.4rem)]">Become a contributor</p></div>
+          <span class="text-3xl" aria-hidden="true">→</span>
+        </a>
+        <a href="/delegate/" class="join cell-link flex items-center justify-between gap-6 p-6 md:p-8">
+          <div><p class="label">Already building? Need expertise?</p><p class="title mt-3 text-[clamp(1.6rem,3vw,2.4rem)]">Delegate your work</p></div>
+          <span class="arrow text-3xl" aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ═════════ §02 SPECIFICATION ═════════ -->
+    <section class="sheet" aria-labelledby="s02">
+      <SheetHead n="02" title="Specification" id="s02" meta="Measured, not estimated" />
+      <div class="cells grid-cols-2 lg:grid-cols-4">
+        {[
+          [String(stats.events), 'events hosted, co-hosted or partnered', '/education/'],
+          [niceFloor(stats.registrations), 'registrations on Luma*', '/education/'],
+          [String(stats.workshopEditions), 'university workshop editions', '/education/workshops/'],
+          ['470k', 'monthly npm downloads of the sr25519 library we curated*', '/builders/scure-sr25519/'],
+        ].map(([v, l, h]) => (
+          <a href={h} class="cell-link block p-5 md:p-7">
+            <p class="display numtext-[clamp(2.6rem,6vw,4.8rem)] !font-[650]">{v}</p>
+            <p class="mt-3 max-w-[16rem] text-sm text-dim">{l}</p>
+          </a>
+        ))}
+      </div>
+      <p class="label pad-x border-t border-line py-3">* Luma registrations are not verified attendance. npm: 30 days to 12 Oct 2026.</p>
+    </section>
+
+    <!-- ═════════ §03 ETHOS ═════════ -->
+    <section class="sheet" aria-labelledby="s03">
+      <SheetHead n="03" title="Ethos" id="s03" href="/ethos/" linkLabel="Full ethos" />
+      <div class="cells grid-cols-1 lg:grid-cols-12">
+        <div class="pad lg:col-span-8">
+          <p class="fade-words text-[clamp(1.6rem,3.4vw,2.9rem)] font-medium leading-[1.12] tracking-[-0.01em]" set:html={statement.split(' ').map((w) => `<span>${w}</span>`).join(' ')} />
+          <p class="mt-8 text-lg"><span class="serif text-2xl text-accent">No hype.</span> Just the work.</p>
+        </div>
+        <div class="lg:col-span-4">
+          <p class="label pad-x border-b border-line py-3">Legend</p>
+          <ul>
+            {values.map(([sym, v, t]) => (
+              <li class="flex gap-4 border-b border-line px-5 py-4 last:border-0 md:px-7">
+                <span class="w-5 text-center font-mono text-accent" aria-hidden="true">{sym}</span>
+                <div><p class="font-semibold">{v}</p><p class="text-sm text-dim">{t}</p></div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div class="cells grid-cols-1 border-t border-line md:grid-cols-3">
+        <div class="pad"><p class="redline">What we don’t stand for</p><p class="title mt-4 text-xl">Hype.</p><div class="mt-3 text-sm text-dim"><Placeholder id="PH-01" /></div></div>
+        <div class="pad">
+          <p class="label">Start contributing voluntarily</p>
+          <ol class="mt-4 space-y-3 text-sm">
+            <li class="flex gap-3"><span class="num text-accent">01</span>Come to an event or join the community.</li>
+            <li class="flex gap-3"><span class="num text-accent">02</span>Pick an open issue, an event role or a guide.</li>
+            <li class="flex gap-3"><span class="num text-accent">03</span>Ship it in public. Take on more as you go.</li>
+          </ol>
+          <div class="mt-3 text-sm"><Placeholder id="PH-02" /></div>
+        </div>
+        <div class="pad">
+          <p class="label">Benefits of being part of GRYD</p>
+          <div class="mt-4 text-sm text-dim"><Placeholder id="PH-03"><p>Learn by doing next to people who’ve shipped grant-funded tools, curated audits and taught hundreds of students.</p></Placeholder></div>
+          <a href="/contribute/" class="label label-fg mt-5 inline-block hover:text-accent">How contributing works →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═════════ §04 BUILDERS ═════════ -->
+    <section class="sheet" aria-labelledby="s04">
+      <SheetHead n="04" title="Builders: selected work" id="s04" href="/builders/" linkLabel={`All ${projects.length}`} />
+      <div class="cells grid-cols-1 md:grid-cols-3">
+        {featured.map((p) => <ProjectCard project={p} n={projects.indexOf(p) + 1} />)}
+      </div>
+    </section>
+
+    <!-- ═════════ §05 ECOSYSTEM MAP ═════════ -->
+    <section class="sheet" aria-labelledby="s05">
+      <SheetHead n="05" title="Ecosystem map" id="s05" meta="Chain-agnostic by choice" />
+      <div class="cells grid-cols-1 lg:grid-cols-12">
+        <div class="pad lg:col-span-4">
+          <h2 class="title text-[clamp(1.8rem,3.2vw,2.6rem)]">One collective, <span class="serif text-accent">many orbits.</span></h2>
+          <p class="mt-5 text-dim">We started in Polkadot as Edgeware contributors. Since then we've built and taught across Ethereum, Stellar and Monad too.</p>
+          <ul class="mt-8 space-y-2 text-sm">
+            {projects.slice(0, 6).map((p) => <li class="flex justify-between gap-3 border-b border-dashed border-line-2 pb-2"><a href={`/builders/${p.id}/`} class="hover:text-accent">{p.data.name}</a><span class="label">{p.data.ecosystems[0]}</span></li>)}
+          </ul>
+        </div>
+        <div class="pad lg:col-span-8"><OrbitMap /></div>
+      </div>
+    </section>
+
+    <!-- ═════════ §06 FIELD LOG ═════════ -->
+    <section class="sheet" aria-labelledby="s06">
+      <SheetHead n="06" title="Field log: education" id="s06" href="/education/" linkLabel={`All ${stats.events} events`} />
+      <FieldLog events={events.slice(0, 9)} caption="Most recent GRYD events" />
+    </section>
+
+    <!-- ═════════ §07 THE RECORD ═════════ -->
+    <section class="sheet" aria-labelledby="s07">
+      <SheetHead n="07" title="The record" id="s07" meta="Independent sources & on-chain" />
+      <div class="cells grid-cols-1 lg:grid-cols-12">
+        <figure class="pad lg:col-span-7">
+          <blockquote cite={acks[0].data.url} class="serif text-[clamp(1.8rem,3.6vw,3rem)] leading-[1.1]">“{acks[0].data.quote}”</blockquote>
+          <figcaption class="mt-6 text-sm"><a href={acks[0].data.url} rel="noopener" class="hover:text-accent">{acks[0].data.by}</a><span class="text-dim">: {acks[0].data.context}</span></figcaption>
+          <div class="mt-6"><Placeholder id="PH-18" /></div>
+          <div class="mt-3"><Placeholder id="PH-19" /></div>
+        </figure>
+        <ol class="lg:col-span-5">
+          {acks.slice(1).map((a, i) => (
+            <li class="border-b border-line last:border-0">
+              <a href={a.data.url} rel="noopener" class="cell-link flex gap-4 px-5 py-5 md:px-7">
+                <span class="label num pt-1">[{i + 1}]</span>
+                <div><p class="font-semibold leading-snug">“{a.data.quote}”</p><p class="mt-1 text-sm text-dim">{a.data.by} · {a.data.date}</p></div>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- ═════════ §08 TECHNICAL NOTES ═════════ -->
+    {posts.length > 0 && (
+      <section class="sheet" aria-labelledby="s08">
+        <SheetHead n="08" title="Technical notes: blog" id="s08" href="/blog/" linkLabel="All notes" />
+        <div class="cells grid-cols-1 md:grid-cols-3">{posts.slice(0, 3).map((p, i) => <PostCard post={p} n={posts.length - i} />)}</div>
+      </section>
+    )}
+
+    <!-- ═════════ §09 GENERAL NOTES ═════════ -->
+    <Notes items={faqItems} n="09" />
+
+    <!-- ═════════ §10 BUILD WITH US ═════════ -->
+    <section class="sheet" aria-labelledby="s10">
+      <div class="cells grid-cols-1 lg:grid-cols-12">
+        <div class="pad py-14 lg:col-span-8 md:py-20">
+          <p class="label">§10 · Next sheet is yours</p>
+          <h2 id="s10" class="display mt-5 text-[clamp(2.6rem,7vw,6rem)]">Build with <span class="serif text-accent">us.</span></h2>
+          <div class="mt-10 flex flex-wrap gap-3"><a href="/contribute/" class="btn btn-accent">Become a contributor</a><a href="/delegate/" class="btn">Delegate your work</a></div>
+        </div>
+        <div class="flex items-center justify-center p-10 lg:col-span-4"><div class="w-56"><Iso scene="contribute" /></div></div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .callout { position: absolute; }
+  .c2 { bottom: 1rem; right: 1rem; }
+  .join-a { background: var(--accent) !important; color: var(--accent-ink); }
+  .join-a:hover { background: var(--text) !important; color: var(--ink); }
+</style>

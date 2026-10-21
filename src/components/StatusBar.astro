@@ -1,0 +1,39 @@
+---
+/** Status bar: mode tabs (Visual / Agents), season, theme. */
+interface Props { agentMode?: boolean }
+const { agentMode = false } = Astro.props;
+const from = encodeURIComponent(Astro.url.pathname);
+---
+<div class="statusbar" role="region" aria-label="Site mode and status">
+  <div class="sb-tabs" role="group" aria-label="Site mode">
+    <a href="/" id="mode-visual" class:list={['tab', { on: !agentMode }]} aria-current={!agentMode ? 'true' : undefined}>Visual</a>
+    <a href={agentMode ? '/agents/' : `/agents/?from=${from}`} class:list={['tab', { on: agentMode }]} aria-current={agentMode ? 'true' : undefined}>Agents</a>
+  </div>
+  <span class="sb-item grow"><span class="dot" aria-hidden="true"></span> Season 03 · in session</span>
+  <button type="button" id="theme-toggle" class="sb-item sb-btn" aria-label="Film / Paper: switch colour theme"><span aria-hidden="true">◐</span><span class="hide-sm">Film / Paper</span></button>
+</div>
+
+<script>
+  const root = document.documentElement;
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch {}
+  });
+</script>
+
+<style>
+  .statusbar { position: fixed; inset: auto 0 0 0; z-index: 45; height: 2.5rem; display: flex; align-items: stretch; background: color-mix(in oklab, var(--ink) 92%, transparent); backdrop-filter: blur(10px); border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; color: var(--dim); }
+  .sb-tabs { display: flex; border-right: 1px solid var(--line); }
+  .tab { display: flex; align-items: center; padding-inline: 1rem; border-right: 1px solid var(--line); }
+  .tab:hover { color: var(--text); }
+  .tab.on { color: var(--accent-ink); background: var(--accent); }
+  .sb-item { display: flex; align-items: center; gap: .5rem; padding-inline: 1rem; border-right: 1px solid var(--line); white-space: nowrap; }
+  .grow { flex: 1; }
+  .sb-btn { background: none; border: 0; border-left: 1px solid var(--line); color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+  .sb-btn:hover { color: var(--text); }
+  .dot { width: 6px; height: 6px; background: var(--accent); }
+  @media (prefers-reduced-motion: no-preference) { .dot { animation: pulse 1.6s steps(1) infinite; } }
+  @keyframes pulse { 50% { opacity: .2; } }
+  @media (max-width: 767px) { .hide-sm { display: none; } .grow { font-size: .625rem; padding-inline: .75rem; } }
+</style>

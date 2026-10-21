@@ -1,0 +1,29 @@
+---
+/** Inner-page cover sheet: title block + optional isometric figure. */
+import Iso from './Iso.astro';
+interface Props {
+  n: string; label: string; title: string; accent?: string; lede?: string;
+  scene?: 'city' | 'build' | 'curate' | 'educate' | 'contribute' | 'delegate' | 'agents';
+  meta?: [string, string][];
+}
+const { n, label, title, accent, lede, scene, meta = [] } = Astro.props;
+---
+<section class="sheet" aria-labelledby="page-title">
+  <div class="cells grid-cols-1 lg:grid-cols-12">
+    <div class="pad flex flex-col pt-10 md:pt-14 lg:col-span-8">
+      <p class="label"><span class="num text-fg">§{n}</span> · {label}</p>
+      <h1 id="page-title" class="display mt-6 text-[clamp(2.3rem,5.6vw,5rem)]">{title}{accent && <> <span class="serif text-accent">{accent}</span></>}</h1>
+      {lede && <p class="lede mt-6">{lede}</p>}
+      <div class="mt-8 flex flex-wrap gap-3"><slot name="actions" /></div>
+    </div>
+    <div class="relative hidden items-center justify-center p-10 lg:col-span-4 lg:flex">
+      {scene && <div class="w-full max-w-[17rem]"><Iso scene={scene} now /></div>}
+      <span class="label absolute bottom-3 right-4">Fig. {n}</span>
+    </div>
+  </div>
+  {meta.length > 0 && (
+    <dl class="cells border-t border-line" style={`grid-template-columns: repeat(${Math.min(meta.length, 4)}, minmax(0,1fr))`}>
+      {meta.map(([k, v]) => <div class="px-4 py-3 md:px-6"><dt class="label">{k}</dt><dd class="num mt-1 text-lg md:text-xl">{v}</dd></div>)}
+    </dl>
+  )}
+</section>

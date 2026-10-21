@@ -1,0 +1,15 @@
+---
+/** GRYD wordmark (public/gryd_logo.png), revealed left-to-right on load. */
+interface Props { class?: string; animate?: boolean }
+const { class: cls = '', animate = true } = Astro.props;
+---
+<img class:list={['wordmark', cls, { animate }]} src="/gryd_logo.png" width="681" height="201" alt="GRYD" decoding="async" />
+
+<style>
+  .wordmark { display: block; width: 100%; height: auto; }
+  :global([data-theme="light"]) .wordmark { filter: saturate(2.4) brightness(.72); }
+  @media (prefers-reduced-motion: no-preference) {
+    .animate { clip-path: inset(0 100% 0 0); animation: wipe .9s cubic-bezier(.2,.7,.2,1) .15s forwards; }
+  }
+  @keyframes wipe { to { clip-path: inset(0 0 0 0); } }
+</style>

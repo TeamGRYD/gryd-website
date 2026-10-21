@@ -1,0 +1,57 @@
+---
+/** Ecosystem orbit map: GRYD at the centre, ecosystems on orbits, projects & events as points. */
+import { getProjects, getEvents } from '../lib/data';
+const projects = await getProjects();
+const events = await getEvents();
+const count = (eco: string) => projects.filter((p) => p.data.ecosystems.includes(eco)).length;
+const evCount = (eco: string) => events.filter((e) => e.data.partners.some((p) => p.toLowerCase().includes(eco.toLowerCase())) || (eco === 'Polkadot' && /polkadot|sub0|assethub|jam/i.test(e.data.title)) || (eco === 'Stellar' && /stellar/i.test(e.data.title)) || (eco === 'Ethereum' && /devcon|ethindia/i.test(e.data.title))).length;
+const rings = [
+  { r: 120, eco: 'Polkadot', a: 210 },
+  { r: 190, eco: 'Ethereum', a: 330 },
+  { r: 260, eco: 'Stellar', a: 60 },
+  { r: 330, eco: 'Monad', a: 150 },
+];
+const W = 760, H = 420, cx = W / 2, cy = H / 2 + 6, k = 0.42;
+const pt = (r: number, deg: number) => { const t = (deg * Math.PI) / 180; return [cx + r * Math.cos(t), cy + r * k * Math.sin(t)]; };
+const nodes = rings.map((ring) => {
+  const [x, y] = pt(ring.r, ring.a);
+  const p = count(ring.eco), e = evCount(ring.eco);
+  const sats = projects.filter((pr) => pr.data.ecosystems.includes(ring.eco)).slice(0, 4).map((pr, i) => { const [sx, sy] = pt(ring.r, ring.a + 16 + i * 13); return { x: sx, y: sy, name: pr.data.name, href: `/builders/${pr.id}/` }; });
+  return { ...ring, x, y, p, e, sats };
+});
+---
+<figure class="orbit" aria-labelledby="orbit-cap">
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Ecosystems GRYD has built or taught in: Polkadot, Ethereum, Stellar and Monad.">
+    <g class="o-grid">{Array.from({ length: 13 }, (_, i) => <line x1={(W / 12) * i} y1="0" x2={(W / 12) * i} y2={H} />)}</g>
+    {rings.map((r) => <ellipse class="o-ring" cx={cx} cy={cy} rx={r.r} ry={r.r * k} />)}
+    {nodes.map((n) => (
+      <g class="o-node">
+        {n.sats.map((s) => <a href={s.href}><rect class="o-sat" x={s.x - 3} y={s.y - 3} width="6" height="6"><title>{s.name}</title></rect></a>)}
+        <line class="o-lead" x1={n.x} y1={n.y} x2={n.x} y2={n.y - 34} />
+        <circle class="o-dot" cx={n.x} cy={n.y} r="5" />
+        <text class="o-name" x={n.x + 6} y={n.y - 40}>{n.eco.toUpperCase()}</text>
+        <text class="o-meta" x={n.x + 6} y={n.y - 28}>{n.p} PROJ · {n.e} EVT</text>
+      </g>
+    ))}
+    <rect class="o-core" x={cx - 18} y={cy - 18} width="36" height="36" />
+    <path class="o-core-grid" d={`M${cx - 6} ${cy - 18}v36M${cx + 6} ${cy - 18}v36M${cx - 18} ${cy - 6}h36M${cx - 18} ${cy + 6}h36`} />
+    <text class="o-name" x={cx + 26} y={cy + 4}>GRYD</text>
+  </svg>
+  <figcaption id="orbit-cap" class="label mt-3">Fig. 1: Ecosystems we've built in or taught in. Squares are projects (hover for names); counts come from this site's records.</figcaption>
+</figure>
+<style>
+  .orbit { overflow-x: auto; }
+  .orbit svg { width: 100%; min-width: 640px; height: auto; overflow: visible; }
+  .o-grid line { stroke: var(--line); stroke-width: 1; }
+  .o-ring { fill: none; stroke: var(--line-2); stroke-width: 1; stroke-dasharray: 2 5; }
+  @media (prefers-reduced-motion: no-preference) { .o-ring { animation: orbit 40s linear infinite; } .o-ring:nth-of-type(2n) { animation-direction: reverse; animation-duration: 60s; } }
+  @keyframes orbit { to { stroke-dashoffset: -280; } }
+  .o-lead { stroke: var(--faint); stroke-width: 1; }
+  .o-dot { fill: var(--ink); stroke: var(--text); stroke-width: 1.5; }
+  .o-sat { fill: var(--text); }
+  .o-sat:hover { fill: var(--accent); }
+  .o-core { fill: var(--accent); }
+  .o-core-grid { stroke: var(--accent-ink); stroke-width: 1; opacity: .5; }
+  .o-name { fill: var(--text); font: 600 12px var(--font-mono); letter-spacing: .08em; }
+  .o-meta { fill: var(--dim); font: 10px var(--font-mono); letter-spacing: .06em; }
+</style>

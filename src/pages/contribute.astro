@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SheetHead from '../components/SheetHead.astro';
+import Placeholder from '../components/Placeholder.astro';
+import IntakeForm from '../components/IntakeForm.astro';
+import Notes from '../components/Notes.astro';
+import Iso from '../components/Iso.astro';
+import { PAGE_META } from '../lib/pages';
+import { faq } from '../lib/schema';
+const meta = PAGE_META['/contribute/'];
+const ways = [
+  ['W-01', 'Code', 'Open issues in our repositories: tooling, education portals, faucets and agents.', 'https://github.com/TeamGRYD', 'build'],
+  ['W-02', 'Events', 'Volunteer, mentor, speak or co-organise a meetup, workshop or hackathon in your city.', '/education/', 'educate'],
+  ['W-03', 'Content', 'Write guides, translate material, record walkthroughs, design slides.', '/blog/', 'curate'],
+  ['W-04', 'Research', 'Read proposals, review ecosystem programmes and write up what you find.', '/business/', 'agents'],
+] as const;
+const faqItems = [
+  { q: 'Do I need Web3 experience to contribute?', a: 'No. Many of our contributors started at a workshop. Pick something small, ship it in public and grow from there.' },
+  { q: 'Is contributing to GRYD paid?', a: 'Some work is funded through grants, bounties and ecosystem programmes, and some is voluntary. Ask us about a specific task before you start.' },
+  { q: 'I am a student. Where do I start?', a: 'Come to a workshop or meetup, then join the community and pick an event role or an open issue. Our workshops are built for students.' },
+];
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Contribute', href: '/contribute/' }]} schema={[faq(faqItems)]}>
+  <div class="board">
+    <PageHero n="05" label="Become a contributor" title="Contribute to Web3," accent="starting this week." lede="GRYD began as solo contributors who kept showing up. If you build, teach, organise or write, there's a way in, whether you're a student or a seasoned builder." scene="contribute" />
+    <section class="sheet" aria-labelledby="ways">
+      <SheetHead n="5.1" title="Ways to contribute" id="ways" />
+      <div class="cells grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {ways.map(([k, t, d, href, scene]) => (
+          <a href={href} class="cell-link flex flex-col p-6">
+            <div class="flex justify-between"><span class="label num">{k}</span><span class="arrow" aria-hidden="true">↗</span></div>
+            <div class="mx-auto my-6 w-24"><Iso scene={scene} /></div>
+            <h3 class="title text-xl">{t}</h3><p class="mt-2 text-sm text-dim">{d}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+    <section class="sheet" aria-labelledby="start">
+      <SheetHead n="5.2" title="Procedure & intake" id="start" />
+      <div class="cells grid-cols-1 lg:grid-cols-2">
+        <div class="pad">
+          <h2 class="title text-2xl">Start in 3 steps</h2>
+          <ol class="mt-6 border-t border-line">
+            {[['Show up', 'Come to an event or join the community channel.'], ['Pick one thing', 'An open issue, an event role, a guide to write. Small is good.'], ['Ship it in public', 'Share what you made. Take on more as you go.']].map(([t, d], i) => (
+              <li class="flex gap-5 border-b border-line py-5"><span class="display num text-3xl text-accent">0{i + 1}</span><div><h3 class="font-semibold">{t}</h3><p class="text-sm text-dim">{d}</p></div></li>
+            ))}
+          </ol>
+          <div class="mt-6 space-y-3"><Placeholder id="PH-02" /><Placeholder id="PH-04" /></div>
+          <h2 class="title mt-12 text-2xl">Benefits</h2>
+          <div class="mt-4 text-dim"><Placeholder id="PH-03"><p>You learn by doing next to people who've shipped grant-funded tools, curated audits and run workshops for hundreds of students. Ask us how grants, bounties and recognition work for a specific task.</p></Placeholder></div>
+          <p class="mt-6 text-sm text-dim">Students: our workshops started a <strong class="text-fg">Students Collective</strong> for builders who want to keep going after the event.</p>
+        </div>
+        <div class="pad">
+          <p class="label">Form C-01 · Contributor intake</p>
+          <div class="mt-6"><IntakeForm formName="contribute" submitLabel="Send" fields={[
+            { name: 'name', label: 'Name', required: true },
+            { name: 'email', label: 'Email', type: 'email', required: true },
+            { name: 'skills', label: 'What do you want to do?', type: 'select', required: true, options: ['Code', 'Events', 'Content / design', 'Research', 'Not sure yet'] },
+            { name: 'links', label: 'GitHub / X / portfolio', type: 'url', placeholder: 'https://' },
+            { name: 'message', label: 'What would you like to work on?', type: 'textarea' },
+          ]} /></div>
+        </div>
+      </div>
+    </section>
+    <Notes items={faqItems} n="5.3" />
+  </div>
+</BaseLayout>

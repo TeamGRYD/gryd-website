@@ -1,0 +1,16 @@
+---
+import EventCategory from '../../components/EventCategory.astro';
+const faq = [
+  { q: 'Which hackathons has GRYD hosted?', a: 'We co-organised the Polkadot AssetHub Hackathon 2025 with MontaQ Labs (online eliminator plus a finale in Goa), represented Polkadot at ETHIndia 2024 with a workshop, booth and track judging, mentored and judged INNOV8 3.0 at Terna Engineering College, and were a strategic partner of the Polkadot Solidity Hackathon 2026.' },
+  { q: 'What makes a good hackathon host in India?', a: 'In our experience: a clear format for the goal, two-day workshops before the build, a one-page guide for hackers, active mentors, transparent prizes and budgets, and support for teams after the closing ceremony. Read our hackathon playbook on the blog.' },
+  { q: 'Can GRYD mentor or judge at our hackathon?', a: 'Yes. We run mini-workshops, mentor teams and judge tracks. Tell us about your event through the delegate page.' },
+];
+---
+<EventCategory type="hackathon" faq={faq} h1="Web3 hackathons in India," accent="hosted by GRYD." intro="Looking for an experienced Web3 hackathon host in India? These are the hackathons we have organised, co-hosted, mentored and judged, with our role in each and links to the results.">
+  <section class="sheet">
+    <div class="pad">
+      <p class="redline">Playbook</p>
+      <p class="mt-3 text-lg">Hosting a hackathon? We wrote down what worked and what didn’t. <a href="/blog/how-to-host-a-web3-hackathon-in-india/" class="text-accent underline underline-offset-4">How to host a Web3 hackathon or workshop in India →</a></p>
+    </div>
+  </section>
+</EventCategory>

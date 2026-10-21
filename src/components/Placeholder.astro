@@ -1,0 +1,27 @@
+---
+import { PLACEHOLDERS, type PlaceholderId } from '../data/placeholders';
+interface Props { id: PlaceholderId; inline?: boolean }
+const { id, inline = false } = Astro.props;
+const entry = PLACEHOLDERS[id];
+const dev = import.meta.env.DEV;
+const Tag = inline ? 'span' : 'div';
+---
+{entry.value ? (
+  <Fragment set:html={entry.value} />
+) : (
+  <Fragment>
+    {/* Dev-only marker, hidden unless the page is opened with ?ph (see BaseLayout). */}
+    {dev && (
+      <Tag class:list={['ph', { 'ph-inline': inline }]} data-placeholder={id}>
+        <strong>{id}</strong> {entry.label}
+      </Tag>
+    )}
+    {Astro.slots.has('default') ? <slot /> : entry.fallback ? <Fragment>{entry.fallback}</Fragment> : null}
+  </Fragment>
+)}
+
+<style>
+  .ph { display: none; border: 1.5px dashed var(--amber); color: var(--amber); border-radius: 8px; padding: .6rem .8rem; font-family: var(--font-mono); font-size: .8rem; background: color-mix(in oklab, var(--amber) 8%, transparent); }
+  :global(html[data-ph]) .ph { display: block; }
+  :global(html[data-ph]) .ph-inline { display: inline; padding: .05rem .35rem; }
+</style>

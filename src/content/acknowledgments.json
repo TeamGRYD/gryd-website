@@ -1,0 +1,47 @@
+[
+  {
+    "id": "scure-readme",
+    "quote": "The audit has been funded by Polkadot, coordinated by Edgeware",
+    "by": "scure-sr25519 README, Paul Miller",
+    "context": "Security section of the library we curated. Edgeware is the DAO our contributors come from.",
+    "date": "2025",
+    "url": "https://github.com/paulmillr/scure-sr25519",
+    "kind": "independent"
+  },
+  {
+    "id": "polkadot-js-merge",
+    "quote": "sr25519: switch from wasm to micro-sr25519",
+    "by": "polkadot-js/common, PR #1971",
+    "context": "Polkadot's core JavaScript library adopted the sr25519 package whose funding and audit we coordinated.",
+    "date": "8 Dec 2025",
+    "url": "https://github.com/polkadot-js/common/pull/1971",
+    "kind": "independent"
+  },
+  {
+    "id": "ref-1165",
+    "quote": "Passed with 100% aye votes",
+    "by": "Polkadot OpenGov, referendum #1165",
+    "context": "Token holders approved the sr25519 development proposal we curated.",
+    "date": "Oct 2024",
+    "url": "https://polkadot.subsquare.io/referenda/1165",
+    "kind": "record"
+  },
+  {
+    "id": "solidity-hackathon",
+    "quote": "Strategic partner: Edgetributors",
+    "by": "Polkadot Solidity Hackathon 2026 (OpenGuild × Web3 Foundation)",
+    "context": "Listed among the strategic partners of the 2026 hackathon.",
+    "date": "2026",
+    "url": "https://polkadothackathon.com/",
+    "kind": "listing"
+  },
+  {
+    "id": "jam-mumbai",
+    "quote": "Local partner: Edgetributor SubDAO",
+    "by": "JAM Tour feat. Gavin Wood: Mumbai (Pala Labs)",
+    "context": "Event listing for Dr. Gavin Wood's JAM Tour stop in Mumbai.",
+    "date": "Feb 2025",
+    "url": "https://luma.com/JAM_Mumbai",
+    "kind": "listing"
+  }
+]

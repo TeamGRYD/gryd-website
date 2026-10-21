@@ -1,0 +1,11 @@
+---
+interface Props { sources: { label: string; url: string }[]; title?: string }
+const { sources, title = 'References' } = Astro.props;
+---
+<aside class="refs" aria-label={title}>
+  <p class="label">{title}</p>
+  <ol class="mt-3 space-y-2 text-sm">
+    {sources.map((s, i) => <li class="flex gap-3"><span class="label num pt-0.5">[{i + 1}]</span><a href={s.url} rel="noopener" class="text-dim underline decoration-line-2 underline-offset-4 hover:text-accent">{s.label}</a></li>)}
+  </ol>
+</aside>
+<style>.refs { border-top: 1px dashed var(--line-2); padding-top: 1.25rem; margin-top: 3rem; }</style>

@@ -1,0 +1,69 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Sources from '../../../components/Sources.astro';
+import Placeholder from '../../../components/Placeholder.astro';
+import CurationCard from '../../../components/CurationCard.astro';
+import SheetHead from '../../../components/SheetHead.astro';
+import Stamp from '../../../components/Stamp.astro';
+import CTASheet from '../../../components/CTASheet.astro';
+import { getCurations } from '../../../lib/data';
+import { phValue, type PlaceholderId } from '../../../data/placeholders';
+import { ORG_ID } from '../../../lib/schema';
+import { absUrl } from '../../../lib/site';
+
+export async function getStaticPaths() {
+  const all = await getCurations();
+  return all.map((c) => ({ params: { slug: c.id }, props: { curation: c, all } }));
+}
+const { curation, all } = Astro.props;
+const d = curation.data;
+const { Content } = await render(curation);
+const override = d.outcomePlaceholder ? phValue(d.outcomePlaceholder) : '';
+const catSlug = `${d.kind}-curations`;
+const catName = d.kind === 'technical' ? 'Technical curations' : 'Non-technical curations';
+const idx = all.indexOf(curation) + 1;
+const related = all.filter((c) => c.id !== curation.id).slice(0, 3);
+const schema = { '@type': 'CreativeWork', name: d.title, description: d.seo.description, url: absUrl(`/business/curations/${curation.id}/`), dateCreated: d.date.toISOString().slice(0, 10), about: d.client, contributor: { '@id': ORG_ID }, ...(d.proposalUrl ? { isBasedOn: d.proposalUrl } : {}) };
+const noindex = d.hidden && !d.placeholders.every((id) => phValue(id as PlaceholderId));
+---
+<BaseLayout title={d.seo.title} description={d.seo.description} crumbs={[{ name: 'Business', href: '/business/' }, { name: catName, href: `/business/${catSlug}/` }, { name: d.title, href: `/business/curations/${curation.id}/` }]} schema={[schema]} noindex={noindex}>
+  <div class="board">
+    <article>
+      <header class="sheet">
+        <div class="cells grid-cols-1 lg:grid-cols-12">
+          <div class="pad pt-10 md:pt-14 lg:col-span-8">
+            <p class="label"><span class="num text-fg">C-{String(idx).padStart(2, '0')}</span> · {catName}</p>
+            <h1 class="display mt-6 text-[clamp(2rem,4.8vw,4.2rem)]">{d.title}</h1>
+            <p class="lede mt-6">{d.outcomeNote}</p>
+            {d.proposalUrl && <a href={d.proposalUrl} rel="noopener" class="btn btn-ext mt-8">View the proposal</a>}
+          </div>
+          <div class="flex items-center justify-center p-10 lg:col-span-4"><Stamp outcome={d.outcome} label={override || undefined} size="lg" /></div>
+        </div>
+        <dl class="cells grid-cols-2 border-t border-line md:grid-cols-4">
+          <div class="px-4 py-3 md:px-6"><dt class="label">Client / project</dt><dd class="mt-1 text-sm">{d.client}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Ecosystem</dt><dd class="mt-1 text-sm">{d.ecosystem}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">When</dt><dd class="num mt-1 text-sm">{d.dateLabel}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Type</dt><dd class="mt-1 text-sm">{d.kind === 'technical' ? 'Technical' : 'Non-technical'}</dd></div>
+        </dl>
+      </header>
+      <section class="sheet">
+        <div class="cells grid-cols-1 lg:grid-cols-12">
+          <div class="pad py-10 lg:col-span-8">
+            <div class="prose">{d.placeholders.map((id) => <Placeholder id={id as PlaceholderId} />)}<Content /></div>
+            <Sources sources={d.sources} />
+          </div>
+          <aside class="lg:col-span-4" aria-label="Our role">
+            <p class="label pad-x border-b border-line py-3">Our role</p>
+            <p class="px-5 py-5 text-sm leading-relaxed md:px-7">{d.ourRole}</p>
+          </aside>
+        </div>
+      </section>
+    </article>
+    <section class="sheet" aria-labelledby="more">
+      <SheetHead n="→" title="More curations" id="more" href="/business/" linkLabel="All" />
+      <div class="cells grid-cols-1 md:grid-cols-3">{related.map((c) => <CurationCard curation={c} n={all.indexOf(c) + 1} />)}</div>
+    </section>
+    <CTASheet title="Need a" accent="curator?" text="We help teams scope, fund and deliver, and we're upfront about the odds." scene="delegate" />
+  </div>
+</BaseLayout>

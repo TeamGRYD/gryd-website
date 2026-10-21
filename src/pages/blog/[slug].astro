@@ -1,0 +1,64 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import CTASheet from '../../components/CTASheet.astro';
+import { getPosts } from '../../lib/data';
+import { fmtDate } from '../../lib/labels';
+import { ORG_ID } from '../../lib/schema';
+import { absUrl } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((p) => ({ params: { slug: p.id }, props: { post: p, all: posts } }));
+}
+const { post, all } = Astro.props;
+const d = post.data;
+const { Content, headings } = await render(post);
+const toc = headings.filter((h) => h.depth === 2);
+const words = (post.body ?? '').split(/\s+/).filter(Boolean).length;
+const minutes = Math.max(1, Math.round(words / 220));
+const tn = all.length - all.indexOf(post);
+const related = all.filter((p) => p.id !== post.id).sort((a, b) => b.data.tags.filter((t) => d.tags.includes(t)).length - a.data.tags.filter((t) => d.tags.includes(t)).length).slice(0, 3);
+const url = absUrl(`/blog/${post.id}/`);
+const schema = { '@type': 'BlogPosting', headline: d.title, description: d.description, datePublished: d.pubDate.toISOString(), dateModified: (d.updatedDate ?? d.pubDate).toISOString(), author: d.author === 'GRYD' ? { '@id': ORG_ID } : { '@type': 'Person', name: d.author }, publisher: { '@id': ORG_ID }, mainEntityOfPage: url, image: absUrl(`/og/blog/${post.id}.png`), keywords: [d.keyword, ...d.tags].join(', '), wordCount: words, inLanguage: 'en-IN' };
+---
+<BaseLayout title={`${d.title} | GRYD`} description={d.description} type="article" published={d.pubDate} modified={d.updatedDate} crumbs={[{ name: 'Blog', href: '/blog/' }, { name: d.title, href: `/blog/${post.id}/` }]} schema={[schema]}>
+  <div class="board">
+    <article>
+      <header class="sheet">
+        <div class="pad pt-10 md:pt-14">
+          <p class="label"><span class="num text-fg">TN-{String(tn).padStart(3, '0')}</span> · Technical note</p>
+          <h1 class="mt-6 max-w-5xl text-[clamp(2rem,4.6vw,4rem)] font-semibold leading-[1.02] tracking-[-0.02em] [font-stretch:112%]">{d.title}</h1>
+          <p class="lede mt-6">{d.description}</p>
+        </div>
+        <dl class="cells grid-cols-2 border-t border-line md:grid-cols-4">
+          <div class="px-4 py-3 md:px-6"><dt class="label">Published</dt><dd class="num mt-1 text-sm"><time datetime={d.pubDate.toISOString()}>{fmtDate(d.pubDate)}</time></dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Author</dt><dd class="mt-1 text-sm">{d.author}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Reading time</dt><dd class="num mt-1 text-sm">{minutes} min</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Tags</dt><dd class="mt-1 flex flex-wrap gap-2 text-sm">{d.tags.map((t) => <a href={`/blog/tags/${t}/`} class="hover:text-accent">#{t}</a>)}</dd></div>
+        </dl>
+      </header>
+      <section class="sheet">
+        <div class="cells grid-cols-1 lg:grid-cols-12">
+          <div class="pad py-10 lg:col-span-8"><div class="prose"><Content /></div>{d.updatedDate && <p class="label mt-10">Updated {fmtDate(d.updatedDate)}</p>}</div>
+          {toc.length > 2 && (
+            <nav class="hidden lg:col-span-4 lg:block" aria-label="On this page">
+              <div class="sticky top-16"><p class="label pad-x border-b border-line py-3">Contents</p>
+                <ol class="py-2">{toc.map((h, i) => <li><a href={`#${h.slug}`} class="flex gap-3 px-7 py-2 text-sm text-dim hover:text-fg"><span class="num text-faint">{String(i + 1).padStart(2, '0')}</span>{h.text}</a></li>)}</ol>
+              </div>
+            </nav>
+          )}
+        </div>
+      </section>
+    </article>
+    {related.length > 0 && (
+      <section class="sheet" aria-labelledby="more">
+        <SheetHead n="→" title="Keep reading" id="more" href="/blog/" linkLabel="All notes" />
+        <div class="cells grid-cols-1 md:grid-cols-3">{related.map((p) => <PostCard post={p} n={all.length - all.indexOf(p)} />)}</div>
+      </section>
+    )}
+    <CTASheet />
+  </div>
+</BaseLayout>

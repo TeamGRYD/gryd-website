@@ -1,0 +1,16 @@
+---
+import Iso from './Iso.astro';
+interface Props { title?: string; accent?: string; text?: string; scene?: 'contribute' | 'delegate' | 'build' | 'educate' | 'curate' }
+const { title = 'Build with', accent = 'us.', text = 'Contribute to open Web3 work, or bring us a project that needs expertise.', scene = 'contribute' } = Astro.props;
+---
+<section class="sheet" aria-labelledby="cta-sheet">
+  <div class="cells grid-cols-1 lg:grid-cols-12">
+    <div class="pad py-12 md:py-16 lg:col-span-8">
+      <p class="label">Next sheet is yours</p>
+      <h2 id="cta-sheet" class="display mt-4 text-[clamp(2.2rem,5.5vw,4.6rem)]">{title} <span class="serif text-accent">{accent}</span></h2>
+      <p class="mt-4 max-w-lg text-dim">{text}</p>
+      <div class="mt-8 flex flex-wrap gap-3"><a href="/contribute/" class="btn btn-accent">Become a contributor</a><a href="/delegate/" class="btn">Delegate your work</a></div>
+    </div>
+    <div class="hidden items-center justify-center p-10 lg:col-span-4 lg:flex"><div class="w-52"><Iso scene={scene} /></div></div>
+  </div>
+</section>

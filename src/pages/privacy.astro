@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import { PAGE_META } from '../lib/pages';
+const meta = PAGE_META['/privacy/'];
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Privacy', href: '/privacy/' }]}>
+  <div class="board">
+    <PageHero n="P" label="Privacy" title="Privacy" lede="gryd.wtf is a static website. We don't set cookies and we don't use advertising trackers." />
+    <section class="sheet pad py-10">
+      <div class="prose">
+        <ul>
+          <li><strong>Analytics:</strong> if enabled, we use a privacy-friendly, cookieless analytics tool that counts page views without identifying you.</li>
+          <li><strong>Forms:</strong> what you send through the contribute or delegate forms is used only to reply to you, and is not sold or shared.</li>
+          <li><strong>Theme:</strong> your film/paper choice is stored in your own browser (localStorage), and nowhere else.</li>
+          <li><strong>External links:</strong> event registration happens on Luma, and code lives on GitHub. Their own privacy policies apply there.</li>
+        </ul>
+        <p>To have your form data deleted, contact us through the <a href="/contact/">contact page</a>.</p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

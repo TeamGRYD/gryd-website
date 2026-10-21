@@ -1,0 +1,62 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SheetHead from '../components/SheetHead.astro';
+import Placeholder from '../components/Placeholder.astro';
+import CTASheet from '../components/CTASheet.astro';
+import { PAGE_META } from '../lib/pages';
+import { SITE } from '../lib/site';
+const meta = PAGE_META['/about/'];
+const timeline = [
+  ['2023', 'Edgeware DAO contributors build EdgeSnap, a MetaMask Snap for Edgeware, at ETHforAll.', 'https://devfolio.co/projects/edgesnap-3cc5'],
+  ['Apr 2024', 'The Polkadot treasury funds the Universal Hybrid Substrate Faucet (ref #541).', '/builders/universal-hybrid-substrate-faucet/'],
+  ['Aug 2024', 'Working as Edgetributor SubDAO; first university workshops proposed for IIT Roorkee.', '/education/events/polkadot-india-workshops-iit-roorkee-2024/'],
+  ['Oct 2024', 'sr25519 development for Polkadot, curated by us, passes OpenGov with 100% aye.', '/business/curations/sr25519-development-paul-miller/'],
+  ['Dec 2024', 'We represent Polkadot’s first sponsorship at ETHIndia.', '/education/events/ethindia-2024-polkadot/'],
+  ['Feb 2025', 'IIT Bombay workshops and local partner for the JAM Tour Mumbai.', '/education/events/polkadot-india-workshops-iit-bombay-2025/'],
+  ['Jun 2025', 'AssetHub Hackathon finale in Goa; Oak Security audit reports for sr25519.', '/education/events/assethub-hackathon-2025/'],
+  ['Aug 2025', 'Workshops at MIT Manipal and NITK Surathkal.', '/education/workshops/'],
+  ['Sep–Nov 2025', 'Road to Sub0 India: 11 city meetups and a hacker house.', '/education/meetups/'],
+  ['Dec 2025', 'Stellar × Polkadot HackerHouse BLR; polkadot-js adopts the sr25519 library; GRYD GitHub organisation created.', '/education/events/stellar-x-polkadot-hackerhouse-blr-2025/'],
+  ['2026', 'Codecamps with OpenGuild, AgentDOT delivered, PlugPort and Tychee, Road to DevCon 8 workshops.', '/builders/'],
+];
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'About', href: '/about/' }]}>
+  <div class="board">
+    <PageHero n="08" label="About" title="About GRYD," accent="formerly Edgetributor SubDAO." lede="A collective of Web3 builders, curators and educators from India. We started as solo contributors from the Edgeware DAO, one of the oldest Substrate projects in the Polkadot ecosystem." scene="city" />
+    <section class="sheet" aria-labelledby="short">
+      <div class="cells grid-cols-1 lg:grid-cols-12">
+        <div class="pad lg:col-span-8">
+          <h2 id="short" class="title text-2xl">The short version</h2>
+          <p class="mt-4 max-w-2xl text-lg text-dim">We <a href="/builders/" class="text-accent underline underline-offset-4">build</a> open tools on grants, <a href="/business/" class="text-accent underline underline-offset-4">curate</a> projects through ecosystem funding processes and audits, and <a href="/education/" class="text-accent underline underline-offset-4">educate</a> through workshops, hackathons, hacker houses and meetups across India.</p>
+          <h2 class="title mt-10 text-2xl">The name</h2>
+          <div class="mt-4 max-w-2xl text-lg text-dim"><Placeholder id="PH-17"><p>The collective began operating as <strong class="text-fg">GRYD</strong> in late 2025. You'll still find our older work under Edgetributor SubDAO and @Edgetributors.</p></Placeholder></div>
+          <div class="mt-4"><Placeholder id="PH-16" /></div>
+        </div>
+        <aside class="lg:col-span-4" aria-label="Find us">
+          <p class="label pad-x border-b border-line py-3">Find us</p>
+          {[['X', '@TeamGRYD (formerly @Edgetributors)', SITE.social.x], ['GitHub', 'TeamGRYD', SITE.social.github], ['Luma', 'GRYD Events', SITE.social.luma], ['Instagram', '@Edgetributors', SITE.social.instagram]].map(([k, v, h]) => <a href={h} rel="me noopener" class="cell-link flex justify-between border-b border-line px-5 py-4 text-sm md:px-7"><span class="label">{k}</span><span>{v} <span class="arrow">↗</span></span></a>)}
+        </aside>
+      </div>
+    </section>
+    <section class="sheet" aria-labelledby="tl">
+      <SheetHead n="8.1" title="Revision history" id="tl" meta="2023 → 2026" />
+      <ol>
+        {timeline.map(([when, what, href], i) => (
+          <li class="border-b border-line last:border-0">
+            <a href={href} class="cell-link grid grid-cols-[4.5rem_1fr] gap-4 px-5 py-4 md:grid-cols-[6rem_10rem_1fr] md:px-7">
+              <span class="label num">R{String(i + 1).padStart(2, '0')}</span>
+              <span class="label label-fg num hidden md:block">{when}</span>
+              <span><span class="label label-fg num md:hidden">{when} · </span>{what} <span class="arrow text-dim">→</span></span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </section>
+    <section class="sheet" aria-labelledby="team">
+      <SheetHead n="8.2" title="Team" id="team" />
+      <div class="pad"><Placeholder id="PH-15"><p class="text-dim">Six core contributors, all active. Team profiles are coming soon.</p></Placeholder></div>
+    </section>
+    <CTASheet />
+  </div>
+</BaseLayout>

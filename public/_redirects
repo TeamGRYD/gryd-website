@@ -1,0 +1,16 @@
+# Legacy nav names from the previous gryd.wtf single page (website_design.md §8.9)
+/work            /builders/          301
+/work/*          /builders/:splat    301
+/learn           /education/         301
+/learn/*         /education/:splat   301
+/community       /contribute/        301
+/community/*     /contribute/        301
+/journal         /blog/              301
+/journal/*       /blog/:splat        301
+/research        /blog/              301
+/collab          /delegate/          301
+/partner         /delegate/          301
+/workshops       /education/workshops/ 301
+/faucet          /builders/universal-hybrid-substrate-faucet/ 301
+/scure-sr25519   /builders/scure-sr25519/ 301
+/roadmap         /builders/          301

@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from './PageHero.astro';
+import SheetHead from './SheetHead.astro';
+import ProjectCard from './ProjectCard.astro';
+import CTASheet from './CTASheet.astro';
+import { getProjects } from '../lib/data';
+import { categoryMeta } from '../lib/labels';
+import { PAGE_META } from '../lib/pages';
+interface Props { category: keyof typeof categoryMeta }
+const { category: key } = Astro.props;
+const cat = categoryMeta[key];
+const meta = PAGE_META[`/builders/${cat.slug}/`];
+const all = await getProjects();
+const items = all.filter((p) => p.data.category === key || (key === 'maintained' && p.data.maintained));
+const intro: Record<string, string> = {
+  'ecosystem-collaboration': 'Built with ecosystems and funded by their treasuries, grant programmes or bounties. Every card links to the proposal that funded it, so you can check what was promised and what was delivered.',
+  maintained: "Not everything we look after is something we wrote. Here we're precise about our role: building and maintaining, or curating, coordinating and stewarding work by others.",
+  product: 'Independent products launched by the GRYD collective.',
+};
+const n = { 'ecosystem-collaboration': '1.1', maintained: '1.2', product: '1.3' }[key];
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Builders', href: '/builders/' }, { name: cat.title, href: `/builders/${cat.slug}/` }]}>
+  <div class="board">
+    <PageHero n={n} label="Builders" title={cat.title} lede={intro[key]} scene={key === 'product' ? 'agents' : key === 'maintained' ? 'curate' : 'build'} />
+    <section class="sheet" aria-labelledby="list">
+      <SheetHead n={n} title={`${items.length} entries`} id="list" />
+      <div class="cells grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        {items.map((p) => <ProjectCard project={p} n={all.indexOf(p) + 1} headingLevel="h2" />)}
+      </div>
+      <nav class="cells grid-cols-1 border-t border-line md:grid-cols-3" aria-label="Builder sections">
+        {Object.values(categoryMeta).map((c) => <a href={`/builders/${c.slug}/`} class:list={['cell-link px-5 py-4 text-sm md:px-7', { 'text-accent': c.slug === cat.slug }]}>{c.title} <span class="arrow">→</span></a>)}
+      </nav>
+    </section>
+    <CTASheet />
+  </div>
+</BaseLayout>

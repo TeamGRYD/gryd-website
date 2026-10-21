@@ -1,0 +1,45 @@
+---
+import { NAV } from '../lib/site';
+const path = Astro.url.pathname;
+const active = (href: string) => path.startsWith(href);
+---
+<header class="topbar">
+  <div class="board cells grid-cols-[auto_1fr_auto] md:grid-cols-[13rem_repeat(4,minmax(0,1fr))_13rem]">
+    <a href="/" class="brand pad-x cell-link flex items-center gap-3" aria-label="GRYD home">
+      <img class="brand-logo" src="/gryd_logo.png" width="681" height="201" alt="GRYD" />
+    </a>
+    {NAV.map((n, i) => (
+      <a href={n.href} class:list={['navcell cell-link hidden md:flex', { on: active(n.href) }]} aria-current={active(n.href) ? 'page' : undefined}>
+        <span class="label num">0{i + 1}</span>
+        <span class="text-sm">{n.label}</span>
+      </a>
+    ))}
+    <a href="/contribute/" class="navcell cta hidden md:flex"><span class="label !text-accent-ink">↗</span><span class="text-sm font-semibold">Contribute</span></a>
+    <details class="mnav md:hidden">
+      <summary class="pad-x flex h-full items-center label label-fg" aria-label="Open menu">Index ☰</summary>
+      <nav class="mpanel cells" aria-label="Mobile">
+        {NAV.map((n, i) => <a href={n.href} class="cell-link flex justify-between p-4"><span>{n.label}</span><span class="label num">0{i + 1}</span></a>)}
+        <a href="/about/" class="cell-link flex justify-between p-4"><span>About</span><span class="label">05</span></a>
+        <a href="/contribute/" class="flex justify-between [background:var(--grad)]! p-4 font-semibold text-accent-ink"><span>Become a contributor</span><span>→</span></a>
+        <a href="/delegate/" class="cell-link flex justify-between p-4"><span>Delegate your work</span><span>→</span></a>
+      </nav>
+    </details>
+  </div>
+</header>
+<style>
+  .topbar { position: sticky; top: 0; z-index: 40; background: color-mix(in oklab, var(--ink) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .topbar .cells > * { background: transparent; }
+  .brand, .navcell { height: 3.5rem; }
+  .brand-logo { height: 1.4rem; width: auto; }
+  :global([data-theme="light"]) .brand-logo { filter: saturate(2.4) brightness(.72); }
+  .navcell { flex-direction: column; justify-content: center; gap: .1rem; padding-inline: 1rem; }
+  .navcell.on { box-shadow: inset 0 -2px 0 var(--accent); }
+  .navcell.on .text-sm { color: var(--accent); }
+  .cta { background: var(--grad) !important; color: var(--accent-ink); }
+  .cta:hover { background: var(--text) !important; color: var(--ink); }
+  .mnav summary { list-style: none; cursor: pointer; height: 3.5rem; }
+  .mnav summary::-webkit-details-marker { display: none; }
+  .mnav { position: static; }
+  .mpanel { position: absolute; left: 0; right: 0; top: 3.5rem; grid-template-columns: 1fr; border-bottom: 1px solid var(--line); }
+  .mpanel > * { background: var(--ink); }
+</style>

@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import CTASheet from '../../components/CTASheet.astro';
+import { getProjects } from '../../lib/data';
+import { categoryMeta } from '../../lib/labels';
+import { PAGE_META } from '../../lib/pages';
+
+const meta = PAGE_META['/builders/'];
+const projects = await getProjects();
+const groups = [
+  { key: 'ecosystem-collaboration', n: '1.1', items: projects.filter((p) => p.data.category === 'ecosystem-collaboration') },
+  { key: 'maintained', n: '1.2', items: projects.filter((p) => p.data.category === 'maintained' || p.data.maintained) },
+  { key: 'product', n: '1.3', items: projects.filter((p) => p.data.category === 'product') },
+] as const;
+const ecosystems = [...new Set(projects.flatMap((p) => p.data.ecosystems))].sort();
+const funded = projects.filter((p) => p.data.funding.length).length;
+const filterCss = ecosystems.map((e) => e.toLowerCase()).map((e) => `main:has(input[name="eco"][value="${e}"]:checked) .pgrid > article:not([data-ecosystems~="${e}"]){display:none}`).join('');
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Builders', href: '/builders/' }]}>
+  <div class="board">
+    <PageHero n="01" label="Builders" title="Tools & products," accent="drawn in the open." lede="We build with ecosystems on grants, maintain and steward open-source infrastructure, and launch our own products. Each project shows our exact role, what funded it, and the sources." scene="build" meta={[['Projects', String(projects.length)], ['Grant-funded', String(funded)], ['Ecosystems', String(ecosystems.length)], ['Licence', 'Open source']]} />
+    <form class="filters pad-x flex flex-wrap items-center gap-2 border-t border-line py-3" aria-label="Filter by ecosystem">
+      <span class="label mr-2">Filter</span>
+      <label><input type="radio" name="eco" value="all" checked /><span>All</span></label>
+      {ecosystems.map((e) => <label><input type="radio" name="eco" value={e.toLowerCase()} /><span>{e}</span></label>)}
+    </form>
+    {groups.map((g) => (
+      <section class="sheet" aria-labelledby={categoryMeta[g.key].slug}>
+        <SheetHead n={g.n} title={categoryMeta[g.key].title} id={categoryMeta[g.key].slug} href={`/builders/${categoryMeta[g.key].slug}/`} linkLabel="Open sheet" meta={categoryMeta[g.key].lede} />
+        <div class="pgrid cells grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {g.items.map((p) => <ProjectCard project={p} n={projects.indexOf(p) + 1} />)}
+        </div>
+      </section>
+    ))}
+    <CTASheet title="Have a tool that needs" accent="builders?" scene="build" />
+  </div>
+</BaseLayout>
+<style is:inline set:html={filterCss}></style>
+<style is:global>
+  .filters label { cursor: pointer; }
+  .filters input { position: absolute; opacity: 0; pointer-events: none; }
+  .filters label span { display: inline-block; font-family: var(--font-mono); font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; border: 1px solid var(--line-2); padding: .35rem .7rem; color: var(--dim); }
+  .filters input:checked + span { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .filters input:focus-visible + span { outline: 1.5px solid var(--accent); outline-offset: 2px; }
+</style>

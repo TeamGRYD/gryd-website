@@ -1,0 +1,92 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Sources from '../../components/Sources.astro';
+import Placeholder from '../../components/Placeholder.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import Iso from '../../components/Iso.astro';
+import CTASheet from '../../components/CTASheet.astro';
+import { getProjects } from '../../lib/data';
+import { categoryMeta, statusLabel, roleLabel, fmtDate } from '../../lib/labels';
+import { phValue, type PlaceholderId } from '../../data/placeholders';
+import { ORG_ID } from '../../lib/schema';
+import { absUrl } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((p) => ({ params: { project: p.id }, props: { project: p, all: projects } }));
+}
+const { project, all } = Astro.props;
+const d = project.data;
+const { Content } = await render(project);
+const cat = categoryMeta[d.category];
+const idx = all.indexOf(project) + 1;
+let [status] = statusLabel[d.status];
+if (d.statusPlaceholder && phValue(d.statusPlaceholder)) status = phValue(d.statusPlaceholder);
+const hideStatus = d.status === 'unknown' && d.category === 'product' && !(d.statusPlaceholder && phValue(d.statusPlaceholder));
+const related = all.filter((p) => p.id !== project.id && (p.data.category === d.category || p.data.ecosystems.some((e) => d.ecosystems.includes(e)))).slice(0, 3);
+const isApp = Boolean(d.links.live);
+const schema = {
+  '@type': isApp ? 'SoftwareApplication' : 'SoftwareSourceCode',
+  name: d.name, description: d.summary, url: absUrl(`/builders/${project.id}/`),
+  ...(d.links.github ? { codeRepository: d.links.github } : {}),
+  ...(isApp ? { applicationCategory: 'DeveloperApplication', operatingSystem: 'Web' } : { programmingLanguage: d.stack[0] }),
+  ...(d.role === 'curated' ? { contributor: { '@id': ORG_ID } } : { creator: { '@id': ORG_ID } }),
+  keywords: [...d.ecosystems, d.seo.keyword].join(', '),
+};
+const linkLabels: Record<string, string> = { live: 'Live site', github: 'GitHub', docs: 'Docs', proposal: 'Proposal' };
+const scene = d.category === 'product' ? 'agents' : d.role === 'curated' ? 'curate' : 'build';
+---
+<BaseLayout title={d.seo.title} description={d.seo.description} crumbs={[{ name: 'Builders', href: '/builders/' }, { name: cat.title, href: `/builders/${cat.slug}/` }, { name: d.name, href: `/builders/${project.id}/` }]} schema={[schema]}>
+  <div class="board">
+    <article>
+      <header class="sheet">
+        <div class="cells grid-cols-1 lg:grid-cols-12">
+          <div class="pad pt-10 md:pt-14 lg:col-span-8">
+            <p class="label"><span class="num text-fg">B-{String(idx).padStart(2, '0')}</span> · {cat.title}</p>
+            <h1 class="display mt-6 text-[clamp(2.4rem,6vw,5.2rem)]">{d.name}</h1>
+            <p class="lede mt-6">{d.summary}</p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              {Object.entries(d.links).map(([k, href], i) => <a href={href} rel="noopener" class:list={['btn btn-ext', { 'btn-accent': i === 0 }]}>{linkLabels[k]}</a>)}
+            </div>
+          </div>
+          <div class="hidden items-center justify-center p-10 lg:col-span-4 lg:flex"><div class="w-60"><Iso scene={scene} now /></div></div>
+        </div>
+        <dl class="cells grid-cols-2 border-t border-line md:grid-cols-5">
+          <div class="px-4 py-3 md:px-6"><dt class="label">Our role</dt><dd class="mt-1 text-sm">{d.roleLabel ?? roleLabel[d.role]}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Status</dt><dd class="mt-1 text-sm">{hideStatus ? '—' : status}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Years</dt><dd class="num mt-1 text-sm">{d.years}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Ecosystem</dt><dd class="mt-1 text-sm">{d.ecosystems.join(' / ')}</dd></div>
+          <div class="hidden px-4 py-3 md:block md:px-6"><dt class="label">Verified</dt><dd class="num mt-1 text-sm">{fmtDate(d.statusVerifiedOn)}</dd></div>
+        </dl>
+      </header>
+      <section class="sheet">
+        <div class="cells grid-cols-1 lg:grid-cols-12">
+          <div class="pad py-10 lg:col-span-8">
+            <div class="prose">
+              {d.placeholders.map((id) => <Placeholder id={id as PlaceholderId} />)}
+              <Content />
+            </div>
+            <Sources sources={d.sources} />
+          </div>
+          <aside class="lg:col-span-4" aria-label="Specification">
+            <p class="label pad-x border-b border-line py-3">Specification</p>
+            <dl class="text-sm">
+              {d.stack.length > 0 && <div class="border-b border-line px-5 py-4 md:px-7"><dt class="label">Stack</dt><dd class="mt-1">{d.stack.join(' · ')}</dd></div>}
+              {d.funding.map((f) => <div class="border-b border-line px-5 py-4 md:px-7"><dt class="label">Funding</dt><dd class="mt-1"><a href={f.url} rel="noopener" class="text-accent hover:underline">{f.program}</a>{f.amount && <span class="num block text-dim">{f.amount}</span>}</dd></div>)}
+              <div class="px-5 py-4 md:px-7"><dt class="label">Machine-readable</dt><dd class="mt-1"><a href={`/builders/${project.id}.md`} class="font-mono text-dim hover:text-accent">/builders/{project.id}.md</a></dd></div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+    </article>
+    {related.length > 0 && (
+      <section class="sheet" aria-labelledby="rel">
+        <SheetHead n="→" title="Related work" id="rel" />
+        <div class="cells grid-cols-1 md:grid-cols-3">{related.map((p) => <ProjectCard project={p} n={all.indexOf(p) + 1} />)}</div>
+      </section>
+    )}
+    <CTASheet />
+  </div>
+</BaseLayout>

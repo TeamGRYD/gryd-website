@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageHero from '../../../components/PageHero.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { getPosts } from '../../../lib/data';
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const tags = [...new Set(posts.flatMap((p) => p.data.tags))];
+  return tags.map((tag) => ({ params: { tag }, props: { tag, posts: posts.filter((p) => p.data.tags.includes(tag)), all: posts } }));
+}
+const { tag, posts, all } = Astro.props;
+---
+<BaseLayout title={`#${tag}: GRYD Blog`} description={`GRYD blog posts tagged ${tag}: field notes on building, curating and teaching Web3 in India.`} noindex={posts.length < 3} crumbs={[{ name: 'Blog', href: '/blog/' }, { name: `#${tag}`, href: `/blog/tags/${tag}/` }]}>
+  <div class="board">
+    <PageHero n="4.T" label="Blog tag" title={`#${tag}`} lede={`${posts.length} note${posts.length === 1 ? '' : 's'}`} />
+    <section class="sheet"><div class="cells grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{posts.map((p) => <PostCard post={p} n={all.length - all.indexOf(p)} />)}</div></section>
+  </div>
+</BaseLayout>

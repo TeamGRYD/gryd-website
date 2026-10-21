@@ -1,0 +1,38 @@
+---
+/** Site footer: tagline, socials, link groups and a slim legal row. */
+import Placeholder from './Placeholder.astro';
+import { SITE } from '../lib/site';
+const year = new Date().getFullYear();
+const groups = [
+  ['Work', [['Builders', '/builders/'], ['Products', '/builders/products/'], ['Business', '/business/'], ['Curations', '/business/technical-curations/']]],
+  ['Learn', [['Education', '/education/'], ['Workshops', '/education/workshops/'], ['Hackathons', '/education/hackathons/'], ['Blog', '/blog/']]],
+  ['Collective', [['About', '/about/'], ['Ethos', '/ethos/'], ['Contribute', '/contribute/'], ['Delegate', '/delegate/'], ['Contact', '/contact/']]],
+  ['Machine-readable', [['Agents hub', '/agents/'], ['llms.txt', '/llms.txt'], ['AGENTS.md', '/AGENTS.md'], ['RSS feed', '/feed.xml']]],
+] as const;
+---
+<footer class="board sheet mt-0">
+  <div class="cells grid-cols-1 md:grid-cols-[1.4fr_repeat(4,1fr)]">
+    <div class="pad flex flex-col gap-5">
+      <img src="/gryd_logo.png" width="681" height="201" alt="GRYD" class="footer-logo" loading="lazy" />
+      <p class="max-w-xs text-sm text-dim">A collective of Web3 builders, curators and educators from India. <span class="serif text-base text-accent">No hype, just the work.</span></p>
+      <div class="flex flex-wrap gap-2">
+        {[['X', SITE.social.x], ['GitHub', SITE.social.github], ['Luma', SITE.social.luma], ['Instagram', SITE.social.instagram]].map(([l, h]) => <a href={h} rel="me noopener" class="tag hover:text-fg">{l} ↗</a>)}
+      </div>
+      <div class="text-sm"><Placeholder id="PH-02" /></div>
+    </div>
+    {groups.map(([title, links]) => (
+      <nav class="pad" aria-label={title}>
+        <p class="label">{title}</p>
+        <ul class="mt-4 space-y-2.5 text-sm">{links.map(([l, h]) => <li><a href={h} class="text-dim hover:text-fg">{l}</a></li>)}</ul>
+      </nav>
+    ))}
+  </div>
+  <div class="pad-x flex flex-wrap justify-between gap-x-6 gap-y-1 border-t border-line py-4 text-xs text-dim">
+    <p>© {year} GRYD · formerly Edgetributor SubDAO</p>
+    <p><a href="/privacy/" class="hover:text-accent">Privacy</a> · <a href="/sitemap-index.xml" class="hover:text-accent">Sitemap</a></p>
+  </div>
+</footer>
+<style>
+  .footer-logo { width: 7.5rem; height: auto; }
+  :global([data-theme="light"]) .footer-logo { filter: saturate(2.4) brightness(.72); }
+</style>

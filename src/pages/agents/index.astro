@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { PAGE_META } from '../../lib/pages';
+import { getProjects, getCurations, getEvents, getPosts } from '../../lib/data';
+import { categoryMeta, eventTypeMeta } from '../../lib/labels';
+
+const meta = PAGE_META['/agents/'];
+const toMd = (p: string) => (p === '/' ? '/index.md' : `${p.replace(/\/$/, '')}.md`);
+const staticPages = ['/', '/about/', '/ethos/', '/contribute/', '/delegate/', '/builders/', ...Object.values(categoryMeta).map((c) => `/builders/${c.slug}/`), '/business/', '/business/technical-curations/', '/business/non-technical-curations/', '/education/', ...Object.values(eventTypeMeta).map((t) => `/education/${t.slug}/`), '/blog/', '/contact/'];
+const groups = [
+  { title: 'Pages', items: staticPages.map((p) => ({ path: p, label: PAGE_META[p]?.title ?? p })) },
+  { title: 'Projects', items: (await getProjects()).map((p) => ({ path: `/builders/${p.id}/`, label: p.data.name })) },
+  { title: 'Curations', items: (await getCurations()).filter((c) => !c.data.hidden).map((c) => ({ path: `/business/curations/${c.id}/`, label: c.data.title })) },
+  { title: 'Events', items: (await getEvents()).filter((e) => e.data.highlight).map((e) => ({ path: `/education/events/${e.id}/`, label: e.data.title })) },
+  { title: 'Blog', items: (await getPosts()).map((p) => ({ path: `/blog/${p.id}/`, label: p.data.title })) },
+];
+const files = [
+  ['/llms.txt', 'Index of the whole site for LLMs (llmstxt.org format)'],
+  ['/llms-full.txt', 'Every page concatenated into one markdown file'],
+  ['/AGENTS.md', 'How to work with GRYD: what we do, how to contact us, citation rules'],
+  ['/data/projects.json', 'Projects: role, status, funding, links, sources'],
+  ['/data/curations.json', 'Curations: outcome, role, proposal links, sources'],
+  ['/data/events.json', 'Events: date, city, role, partners, registrations'],
+  ['/feed.json', 'Blog (JSON Feed 1.1)'],
+  ['/feed.xml', 'Blog (RSS 2.0)'],
+];
+---
+<BaseLayout title={meta.title} description={meta.description} agentMode preloadMono crumbs={[{ name: 'Agents', href: '/agents/' }]}>
+  <section class="board sheet pad pt-10 font-mono">
+    <p class="text-sm text-accent">$ gryd --mode agents</p>
+    <h1 class="mt-4 min-h-[1.1em] font-sans text-[clamp(2.4rem,5vw,4.4rem)] font-semibold uppercase leading-none tracking-tight">GRYD for <span class="serif text-accent">agents.</span></h1>
+    <p class="mt-4 max-w-3xl font-sans text-lg text-dim">The same content as the visual site, as plain markdown and JSON. Everything is generated from one source at build time, so the two modes never drift apart. Facts link to primary sources (on-chain referenda, GitHub, event pages); please cite them.</p>
+    <p id="from-hint" class="mt-4 hidden text-sm text-dim">You came from <a id="from-md" class="text-accent" href="#"></a>. Open its markdown copy.</p>
+
+    <h2 class="mt-12 font-sans text-2xl">Machine-readable files</h2>
+    <ul class="term mt-4">
+      {files.map(([href, desc]) => (
+        <li><a href={href} class="text-accent">{href}</a><span class="text-dim"> # {desc}</span><button type="button" class="copy" data-copy={href}>copy url</button></li>
+      ))}
+    </ul>
+
+    <h2 class="mt-12 font-sans text-2xl">Markdown copy of every page</h2>
+    <p class="mt-2 font-sans text-dim">Add <code>.md</code> to any page path, or use the links below. Each HTML page also declares <code>&lt;link rel="alternate" type="text/markdown"&gt;</code>.</p>
+    {groups.map((g) => (
+      <div class="mt-8">
+        <p class="text-xs uppercase tracking-widest text-dim">## {g.title}</p>
+        <ul class="term mt-2">
+          {g.items.map((it) => <li data-path={it.path}><a href={toMd(it.path)} class="text-accent">{toMd(it.path)}</a><span class="text-dim"> # {it.label}</span></li>)}
+        </ul>
+      </div>
+    ))}
+
+    <h2 class="mt-12 font-sans text-2xl">Usage</h2>
+    <pre class="term mt-4 overflow-x-auto"><code>curl -s https://www.gryd.wtf/llms.txt
+curl -s https://www.gryd.wtf/builders/agentdot.md
+curl -s https://www.gryd.wtf/data/events.json | jq '.events[] | select(.type=="hackathon")'</code></pre>
+  </section>
+</BaseLayout>
+
+<script>
+  const from = new URLSearchParams(location.search).get('from');
+  if (from && from.startsWith('/')) {
+    const md = from === '/' ? '/index.md' : `${from.replace(/\/$/, '')}.md`;
+    const hint = document.getElementById('from-hint');
+    const a = document.getElementById('from-md') as HTMLAnchorElement | null;
+    if (hint && a) { a.href = md; a.textContent = md; hint.classList.remove('hidden'); }
+    document.querySelector(`li[data-path="${CSS.escape(from)}"]`)?.classList.add('hl');
+    const visual = document.getElementById('mode-visual') as HTMLAnchorElement | null;
+    if (visual) visual.href = from;
+  }
+  document.querySelectorAll<HTMLButtonElement>('button.copy').forEach((b) =>
+    b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(new URL(b.dataset.copy!, location.origin).href); b.textContent = 'copied'; setTimeout(() => (b.textContent = 'copy url'), 1500); } catch {}
+    }),
+  );
+</script>
+
+<style>
+  .term { background: var(--sheet); border: 1px solid var(--line); padding: 1rem 1.1rem; font-size: .85rem; line-height: 1.9; }
+  .term { overflow-x: auto; }
+  .term li { display: flex; flex-wrap: nowrap; white-space: nowrap; gap: .5rem; align-items: baseline; }
+  .term li.hl { background: color-mix(in oklab, var(--accent) 12%, transparent); padding-inline: .4rem; }
+  .copy { margin-left: auto; font: inherit; font-size: .7rem; color: var(--text-dim); border: 1px solid var(--line); padding: 0 .45rem; background: transparent; cursor: pointer; }
+  .copy:hover { color: var(--accent); border-color: var(--accent); }
+  code { font-family: var(--font-mono); }
+</style>

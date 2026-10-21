@@ -1,0 +1,43 @@
+---
+/** Event list as a field log / departures board. */
+import type { CollectionEntry } from 'astro:content';
+import { eventTypeLabel, eventRoleLabel } from '../lib/labels';
+interface Props { events: CollectionEntry<'events'>[]; caption?: string }
+const { events, caption } = Astro.props;
+const df = new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: '2-digit', timeZone: 'Asia/Kolkata' });
+---
+<div class="log">
+  <table>
+    {caption && <caption class="sr-only">{caption}</caption>}
+    <thead><tr><th scope="col">Date</th><th scope="col">Event</th><th scope="col" class="hide-md">Type</th><th scope="col">City</th><th scope="col" class="hide-md">Role</th><th scope="col" class="r">Reg.</th></tr></thead>
+    <tbody>
+      {events.map((e) => {
+        const d = e.data;
+        const href = d.highlight ? `/education/events/${e.id}/` : d.lumaUrl ?? d.sources[0].url;
+        return (
+          <tr class:list={{ hl: d.highlight }}>
+            <td class="num nowrap"><time datetime={d.start.toISOString()}>{df.format(d.start)}</time></td>
+            <td><a href={href} class="ev" {...(!d.highlight ? { rel: 'noopener', target: '_blank' } : {})}>{d.title}<span aria-hidden="true">{d.highlight ? ' →' : ' ↗'}</span></a></td>
+            <td class="hide-md label">{eventTypeLabel[d.type]}</td>
+            <td class="label label-fg">{d.city}</td>
+            <td class="hide-md label">{eventRoleLabel[d.role]}</td>
+            <td class="num r">{d.registrations ?? '—'}</td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+<style>
+  .log { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th { text-align: left; font-family: var(--font-mono); font-size: .625rem; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); font-weight: 500; padding: .6rem 1rem; border-bottom: 1px solid var(--line); }
+  td { padding: .8rem 1rem; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+  tr:hover td { background: var(--raise); }
+  tr.hl .ev { font-weight: 600; }
+  .ev:hover { color: var(--accent); }
+  .ev span { color: var(--faint); }
+  .r { text-align: right; }
+  .nowrap { white-space: nowrap; color: var(--dim); }
+  @media (max-width: 767px) { .hide-md { display: none; } td, th { padding-inline: .6rem; } }
+</style>

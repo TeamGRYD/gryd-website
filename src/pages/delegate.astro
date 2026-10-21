@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SheetHead from '../components/SheetHead.astro';
+import Placeholder from '../components/Placeholder.astro';
+import IntakeForm from '../components/IntakeForm.astro';
+import Notes from '../components/Notes.astro';
+import { PAGE_META } from '../lib/pages';
+import { faq } from '../lib/schema';
+const meta = PAGE_META['/delegate/'];
+const help = [
+  ['D-01', 'Ecosystem onboarding & proposals', 'We introduce your team to an ecosystem’s funding process (e.g. Polkadot OpenGov), scope the work and draft the proposal.', '/business/technical-curations/'],
+  ['D-02', 'Architecture & DevOps', 'Guidance on Substrate, EVM and multi-chain integration, and on keeping deployments maintainable.', '/builders/'],
+  ['D-03', 'Audit coordination', 'We pick and brief auditors, run the funding and publish the funds trace, as we did for scure-sr25519.', '/business/curations/scure-sr25519-audit/'],
+  ['D-04', 'Events & developer education', 'Workshops, hackathon tracks, mentoring and judging for your ecosystem or campus.', '/education/'],
+];
+const steps = ['Submit: tell us what you’re building and what you need.', 'Review: we check fit and ask questions.', 'Scope: we agree what we’ll do, and what we won’t.', 'Engage: proposal, milestones and public reporting.'];
+const faqItems = [
+  { q: 'What kind of projects does GRYD take on?', a: 'Open, ecosystem-relevant Web3 work: developer tooling, cryptography libraries, ZK tooling, consumer apps going on-chain, and education programmes. See our past curations, including the ones that did not pass.' },
+  { q: 'Do you guarantee a grant or proposal will pass?', a: 'No. Funding decisions belong to the ecosystem. Several proposals we curated were rejected, and we publish those outcomes.' },
+  { q: 'How much does it cost?', a: 'Terms depend on scope and are agreed after scoping.' },
+];
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Delegate', href: '/delegate/' }]} schema={[faq(faqItems)]}>
+  <div class="board">
+    <PageHero n="06" label="Delegate your work" title="Already building?" accent="Bring in the expertise." lede="We've taken projects from idea to funded, audited and shipped, and we've watched some get rejected. Here's how we can help, and how to ask." scene="delegate" />
+    <section class="sheet" aria-labelledby="help">
+      <SheetHead n="6.1" title="Where we can help" id="help" />
+      <div class="cells grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {help.map(([k, t, d, href]) => <a href={href} class="cell-link flex flex-col p-6"><span class="label num">{k}</span><h3 class="mt-8 font-semibold">{t}</h3><p class="mt-2 text-sm text-dim">{d}</p><span class="label label-fg mt-auto pt-6">See examples <span class="arrow">→</span></span></a>)}
+      </div>
+    </section>
+    <section class="sheet" aria-labelledby="how">
+      <SheetHead n="6.2" title="Procedure & intake" id="how" />
+      <div class="cells grid-cols-1 lg:grid-cols-2">
+        <div class="pad">
+          <h2 class="title text-2xl">How it works</h2>
+          <Placeholder id="PH-05">
+            <ol class="mt-6 border-t border-line">{steps.map((s, i) => <li class="flex gap-5 border-b border-line py-5"><span class="display num text-3xl text-accent">0{i + 1}</span><p class="text-dim">{s}</p></li>)}</ol>
+          </Placeholder>
+          <div class="mt-6 space-y-2 text-sm text-dim"><p><Placeholder id="PH-06" inline /></p><p><Placeholder id="PH-07" inline /></p><p><Placeholder id="PH-08" inline /></p></div>
+          <p class="mt-8 text-dim">Before you write: read <a href="/business/" class="text-accent underline underline-offset-4">every curation we've done</a> and <a href="/blog/why-some-of-our-opengov-proposals-were-rejected/" class="text-accent underline underline-offset-4">why some didn't pass</a>.</p>
+        </div>
+        <div class="pad">
+          <p class="label">Form D-01 · Project intake</p>
+          <div class="mt-6"><IntakeForm formName="delegate" submitLabel="Send project" fields={[
+            { name: 'name', label: 'Your name', required: true },
+            { name: 'email', label: 'Email', type: 'email', required: true },
+            { name: 'project', label: 'Project name', required: true },
+            { name: 'ecosystem', label: 'Ecosystem', placeholder: 'Polkadot, Ethereum, Stellar, Monad…' },
+            { name: 'stage', label: 'Stage', type: 'select', options: ['Idea', 'Prototype', 'Live product', 'Event / education programme'] },
+            { name: 'need', label: 'What do you need?', type: 'select', required: true, options: ['Proposal / grant curation', 'Architecture & DevOps', 'Audit coordination', 'Workshop or hackathon', 'Other'] },
+            { name: 'links', label: 'Links (repo, deck, site)', type: 'url', placeholder: 'https://' },
+            { name: 'message', label: 'Timeline and anything else', type: 'textarea' },
+          ]} /></div>
+        </div>
+      </div>
+    </section>
+    <Notes items={faqItems} n="6.3" />
+  </div>
+</BaseLayout>

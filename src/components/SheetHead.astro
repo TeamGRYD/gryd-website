@@ -1,0 +1,17 @@
+---
+/** Drawing-sheet header: §number · title · sheet meta, with column ticks. */
+interface Props { n: string; title: string; meta?: string; href?: string; linkLabel?: string; id?: string; as?: 'h1' | 'h2' }
+const { n, title, meta, href, linkLabel = 'Open', id, as = 'h2' } = Astro.props;
+const H = as;
+---
+<header class="sheet-head cells grid-cols-[4.5rem_1fr] md:grid-cols-[6rem_1fr_auto]">
+  <div class="pad-x flex items-center py-3"><span class="label label-fg num">§{n}</span></div>
+  <div class="pad-x flex items-center py-3"><H id={id} class="label label-fg !text-[0.6875rem]">{title}</H></div>
+  <div class="pad-x hidden items-center gap-6 py-3 md:flex">
+    {meta && <span class="label">{meta}</span>}
+    {href && <a href={href} class="label label-fg hover:text-accent">{linkLabel} ↗</a>}
+  </div>
+</header>
+<style>
+  .sheet-head { border-bottom: 1px solid var(--line); }
+</style>

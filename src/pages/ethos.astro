@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import SheetHead from '../components/SheetHead.astro';
+import Placeholder from '../components/Placeholder.astro';
+import CTASheet from '../components/CTASheet.astro';
+import { PAGE_META } from '../lib/pages';
+const meta = PAGE_META['/ethos/'];
+const values = [
+  ['▣', 'Grounded', 'We ship working things and cite our sources. When we say we did something, there is a referendum, a repository or an event page to check.', '/business/'],
+  ['◇', 'Resilient', 'We started as solo contributors who kept building after the incentives stopped. Rejected proposals don’t stop the work. We publish them and keep going.', '/blog/why-some-of-our-opengov-proposals-were-rejected/'],
+  ['○', 'Welcoming', 'Most of our work is teaching. Students and first-time contributors are who we build workshops for.', '/education/workshops/'],
+  ['△', 'Crafted', 'Craft is a first principle, whether it’s a cryptography library audit or a two-day workshop agenda.', '/builders/scure-sr25519/'],
+  ['✕', 'Connected', 'Chain-agnostic by choice: Polkadot, Kusama, Ethereum, Stellar, Monad. We go where the builders are.', '/builders/'],
+];
+const practices = [
+  ['Public goods, publicly licensed', 'Our tools are open source: MIT for the faucet and AgentDOT, Apache-2.0 for Road2DevCon.'],
+  ['Transparent funding', 'We publish post-event reports with budgets and return unused funds, for example 1,723.992 DOT after ETHIndia 2024 and 291 DOT after IIT Bombay.'],
+  ['Honest track record', 'Every curation is listed with its real outcome, including the ones that didn’t pass.'],
+  ['Teaching is part of the build', 'Tools like AgentDOT came out of problems we saw while teaching.'],
+];
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Ethos', href: '/ethos/' }]}>
+  <div class="board">
+    <PageHero n="07" label="Ethos" title="What we stand for" accent="(and what we don't)." lede="A collective of Web3 builders, curators and educators. No hype. Just the work." scene="city" />
+    <section class="sheet" aria-labelledby="legend">
+      <SheetHead n="7.1" title="Legend: our values" id="legend" />
+      <div class="cells grid-cols-1 md:grid-cols-2 lg:grid-cols-5">
+        {values.map(([sym, v, t, href]) => <a href={href} class="cell-link flex flex-col p-6"><span class="font-mono text-2xl text-accent" aria-hidden="true">{sym}</span><h3 class="title mt-8 text-xl">{v}</h3><p class="mt-3 text-sm text-dim">{t}</p></a>)}
+      </div>
+    </section>
+    <section class="sheet" aria-labelledby="practice">
+      <SheetHead n="7.2" title="How it shows up in practice" id="practice" />
+      <ul class="cells grid-cols-1 md:grid-cols-2">{practices.map(([t, d], i) => <li class="pad"><p class="label num">P-{String(i + 1).padStart(2, '0')}</p><h3 class="mt-4 text-lg font-semibold">{t}</h3><p class="mt-2 text-dim">{d}</p></li>)}</ul>
+    </section>
+    <section class="sheet" aria-labelledby="dont">
+      <div class="cells grid-cols-1 lg:grid-cols-2">
+        <div class="pad"><p class="redline">Struck through</p><h2 id="dont" class="title mt-4 text-3xl">What we don't stand for</h2><p class="mt-4 text-xl"><s class="decoration-red decoration-2">Hype.</s> <span class="serif text-accent">Just the work.</span></p><div class="mt-4 text-dim"><Placeholder id="PH-01" /></div></div>
+        <div class="pad"><p class="label">How to take part</p><h2 class="title mt-4 text-3xl">Show up. Ship.</h2><p class="mt-4 text-dim">Contribute voluntarily: come to an event, pick one task, ship it in public. Or bring us your project.</p><div class="mt-3 text-dim"><Placeholder id="PH-03" /></div><div class="mt-6 flex flex-wrap gap-3"><a href="/contribute/" class="btn btn-accent">Become a contributor</a><a href="/delegate/" class="btn">Delegate your work</a></div></div>
+      </div>
+    </section>
+    <CTASheet />
+  </div>
+</BaseLayout>

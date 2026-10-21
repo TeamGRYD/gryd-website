@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import EventCard from '../../components/EventCard.astro';
+import FieldLog from '../../components/FieldLog.astro';
+import Iso from '../../components/Iso.astro';
+import CTASheet from '../../components/CTASheet.astro';
+import { getEvents, getStats, niceFloor } from '../../lib/data';
+import { eventTypeMeta } from '../../lib/labels';
+import { PAGE_META } from '../../lib/pages';
+
+const meta = PAGE_META['/education/'];
+const events = await getEvents();
+const stats = await getStats();
+const types = Object.keys(eventTypeMeta) as (keyof typeof eventTypeMeta)[];
+const upcoming = events.filter((e) => e.data.start.getTime() > Date.now());
+const scenes = { meetup: 'city', workshop: 'educate', hackathon: 'build', 'hacker-house': 'contribute' } as const;
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Education', href: '/education/' }]}>
+  <div class="board">
+    <PageHero n="03" label="Education" title="Web3 education in" accent="India." lede="We teach Web3 from first principles, in lecture halls, co-living houses and on hackathon floors. Meetups, workshops, hackathons and hacker houses since 2024." scene="educate" meta={[['Events', String(stats.events)], ['Cities', String(stats.cities)], ['Luma registrations', niceFloor(stats.registrations)], ['Workshop editions', String(stats.workshopEditions)]]} />
+
+    <nav class="sheet cells grid-cols-2 md:grid-cols-4" aria-label="Education sections">
+      {types.map((t, i) => (
+        <a href={`/education/${eventTypeMeta[t].slug}/`} class="cell-link group flex flex-col p-5 md:p-7">
+          <div class="flex justify-between"><span class="label num">3.{i + 1}</span><span class="arrow" aria-hidden="true">↗</span></div>
+          <div class="mx-auto my-6 w-24 md:w-32"><Iso scene={scenes[t]} /></div>
+          <h2 class="title text-xl md:text-2xl">{eventTypeMeta[t].title}</h2>
+          <p class="label mt-2">{events.filter((e) => e.data.type === t).length} logged</p>
+        </a>
+      ))}
+    </nav>
+
+    {upcoming.length > 0 && (
+      <section class="sheet" aria-labelledby="up">
+        <SheetHead n="3.0" title="Upcoming" id="up" />
+        <div class="cells grid-cols-1 md:grid-cols-3">{upcoming.map((e) => <EventCard event={e} />)}</div>
+      </section>
+    )}
+
+    <section class="sheet" aria-labelledby="log">
+      <SheetHead n="3.9" title="Complete field log" id="log" meta={`${events.length} entries · newest first`} />
+      <FieldLog events={events} caption="All GRYD events" />
+    </section>
+    <CTASheet title="Bring a workshop to your" accent="campus." text="We've run two-day workshops at IITs and NITs and mentored and judged college hackathons. Tell us about your club." scene="educate" />
+  </div>
+</BaseLayout>

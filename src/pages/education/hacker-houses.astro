@@ -1,0 +1,9 @@
+---
+import EventCategory from '../../components/EventCategory.astro';
+const faq = [
+  { q: 'What is a hacker house?', a: 'A hacker house is a multi-day, live-in build sprint. Selected builders get accommodation, meals and mentors so they can focus on shipping a project, usually ending in a demo day.' },
+  { q: 'Where have GRYD hacker houses been held?', a: 'In Bengaluru: the Road to Sub0 India hacker house at Zo House Whitefield (November 2025) and the Stellar × Polkadot HackerHouse BLR at The Hosteller, Indiranagar (December 2025).' },
+  { q: 'How are hacker house participants selected?', a: 'For Road to Sub0 India, builders were selected from the Indian participants of the Polkadot Builder Party hackathon. For Stellar × Polkadot, applicants were reviewed for projects combining both ecosystems.' },
+];
+---
+<EventCategory type="hacker-house" faq={faq} h1="Web3 hacker houses in" accent="Bangalore." intro="Fully supported, multi-day build sprints with mentors, demo days and prizes, including India's Stellar × Polkadot cross-ecosystem hacker house." />

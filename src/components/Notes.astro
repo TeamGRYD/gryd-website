@@ -1,0 +1,24 @@
+---
+/** FAQ as "General notes" on a drawing. */
+interface Props { items: { q: string; a: string }[]; n?: string; title?: string }
+const { items, n = '99', title = 'General notes' } = Astro.props;
+import SheetHead from './SheetHead.astro';
+---
+<section class="sheet" aria-labelledby={`notes-${n}`}>
+  <SheetHead n={n} title={title} id={`notes-${n}`} meta="FAQ" />
+  <ol class="cells grid-cols-1 md:grid-cols-2">
+    {items.map((it, i) => (
+      <li class="pad">
+        <details class="group" open={i < 2}>
+          <summary class="flex cursor-pointer list-none gap-4">
+            <span class="label num pt-1">{String(i + 1).padStart(2, '0')}.</span>
+            <h3 class="flex-1 text-lg font-semibold leading-snug">{it.q}</h3>
+            <span class="label pt-1 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+          </summary>
+          <p class="mt-3 pl-9 text-dim [&_a]:text-accent [&_a]:underline" set:html={it.a} />
+        </details>
+      </li>
+    ))}
+  </ol>
+</section>
+<style>summary::-webkit-details-marker { display: none; }</style>

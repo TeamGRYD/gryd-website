@@ -1,0 +1,14 @@
+---
+/** Blog post as a numbered technical note. */
+import type { CollectionEntry } from 'astro:content';
+import { fmtDate } from '../lib/labels';
+interface Props { post: CollectionEntry<'posts'>; n?: number }
+const { post, n } = Astro.props;
+const d = post.data;
+---
+<article class="cell-link flex h-full flex-col p-5">
+  <div class="flex justify-between"><span class="label num">TN-{String(n ?? 0).padStart(3, '0')}</span><span class="label"><time datetime={d.pubDate.toISOString()}>{fmtDate(d.pubDate)}</time></span></div>
+  <h3 class="mt-8 text-[1.3rem] font-semibold leading-snug"><a href={`/blog/${post.id}/`} class="stretch">{d.title}</a></h3>
+  <p class="mt-3 text-sm leading-relaxed text-dim">{d.description}</p>
+  <p class="label mt-auto pt-6">{d.tags.slice(0, 3).map((t) => `#${t}`).join(' ')} <span class="arrow" aria-hidden="true">→</span></p>
+</article>

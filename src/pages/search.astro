@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { PAGE_META } from '../lib/pages';
+const meta = PAGE_META['/search/'];
+---
+<BaseLayout title={meta.title} description={meta.description} noindex crumbs={[{ name: 'Search', href: '/search/' }]}>
+  <section class="board sheet pad pt-10">
+    <p class="label">§S · Index search</p>
+    <h1 class="display mt-4 text-5xl">Search</h1>
+    <div id="search" class="mt-8" data-pagefind-ignore></div>
+    <noscript><p class="mt-6 text-dim">Search needs JavaScript. Browse <a href="/builders/" class="text-accent underline">Builders</a>, <a href="/education/" class="text-accent underline">Education</a> or the <a href="/blog/" class="text-accent underline">Blog</a>.</p></noscript>
+  </section>
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!window.PagefindUI) return;
+      const ui = new PagefindUI({ element: '#search', showSubResults: true, showImages: false });
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) ui.triggerSearch(q);
+    });
+  </script>
+  <style is:global>
+    #search { --pagefind-ui-scale: .95; --pagefind-ui-primary: var(--accent); --pagefind-ui-text: var(--text); --pagefind-ui-background: var(--sheet); --pagefind-ui-border-radius: 0; --pagefind-ui-border: var(--line); --pagefind-ui-tag: var(--bg-elev); --pagefind-ui-font: var(--font-sans); }
+  </style>
+</BaseLayout>

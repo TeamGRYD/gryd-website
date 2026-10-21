@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from './PageHero.astro';
+import SheetHead from './SheetHead.astro';
+import EventCard from './EventCard.astro';
+import FieldLog from './FieldLog.astro';
+import Notes from './Notes.astro';
+import CTASheet from './CTASheet.astro';
+import { getEvents } from '../lib/data';
+import { eventTypeMeta } from '../lib/labels';
+import { PAGE_META } from '../lib/pages';
+import { faq as faqSchema } from '../lib/schema';
+
+interface Props { type: keyof typeof eventTypeMeta; h1: string; accent?: string; intro: string; faq?: { q: string; a: string }[]; groupBy?: 'series' }
+const { type, h1, accent, intro, faq = [], groupBy } = Astro.props;
+const m = eventTypeMeta[type];
+const n = `3.${Object.keys(eventTypeMeta).indexOf(type) + 1}`;
+const meta = PAGE_META[`/education/${m.slug}/`];
+const list = (await getEvents()).filter((e) => e.data.type === type);
+const highlights = list.filter((e) => e.data.highlight);
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const groups = groupBy ? [...new Set(list.map((e) => e.data.series ?? 'Other events'))].map((g) => ({ name: g, items: list.filter((e) => (e.data.series ?? 'Other events') === g) })) : [];
+const cities = [...new Set(list.filter((e) => !e.data.online).map((e) => e.data.city))];
+const regs = list.reduce((a, e) => a + (e.data.registrations ?? 0), 0);
+const scene = { meetup: 'city', workshop: 'educate', hackathon: 'build', 'hacker-house': 'contribute' }[type] as 'city';
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Education', href: '/education/' }, { name: m.title, href: `/education/${m.slug}/` }]} schema={faq.length ? [faqSchema(faq)] : []}>
+  <div class="board">
+    <PageHero n={n} label={`Education · ${m.title}`} title={h1} accent={accent} lede={intro} scene={scene} meta={[[m.title, String(list.length)], ['Cities', String(cities.length)], ['Luma registrations', regs ? String(regs) : '—'], ['Write-ups', String(highlights.length)]]} />
+    {highlights.length > 0 && (
+      <section class="sheet" aria-labelledby="hl">
+        <SheetHead n={n} title="With full write-ups" id="hl" />
+        <div class="cells grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{highlights.map((e) => <EventCard event={e} />)}</div>
+      </section>
+    )}
+    {groupBy ? groups.map((g) => (
+      <section class="sheet" aria-labelledby={slugify(g.name)}>
+        <SheetHead n={n} title={g.name} id={slugify(g.name)} meta={`${g.items.length} entries`} />
+        <FieldLog events={g.items} caption={g.name} />
+      </section>
+    )) : (
+      <section class="sheet" aria-labelledby="all">
+        <SheetHead n={n} title="Field log" id="all" meta={`${list.length} entries`} />
+        <FieldLog events={list} caption={m.title} />
+      </section>
+    )}
+    {cities.length > 1 && <p class="label pad-x border-t border-line py-3">Cities: {cities.join(' · ')}</p>}
+    <slot />
+    {faq.length > 0 && <Notes items={faq} n={`${n}N`} />}
+    <CTASheet title="Host this" accent="with us." text="Want a meetup, workshop, hackathon or hacker house in your city or college? Let's plan it." scene="educate" />
+  </div>
+</BaseLayout>

@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from './PageHero.astro';
+import SheetHead from './SheetHead.astro';
+import CurationCard from './CurationCard.astro';
+import CTASheet from './CTASheet.astro';
+import { getCurations } from '../lib/data';
+import { PAGE_META } from '../lib/pages';
+interface Props { kind: 'technical' | 'non-technical' }
+const { kind } = Astro.props;
+const slug = `${kind}-curations`;
+const meta = PAGE_META[`/business/${slug}/`];
+const all = await getCurations();
+const items = all.filter((c) => c.data.kind === kind);
+const copy = kind === 'technical'
+  ? { n: '2.1', title: 'Technical', lede: 'Projects where we curated funding proposals, coordinated audits or guided architecture: what was asked, what we did, and the outcome on-chain.' }
+  : { n: '2.2', title: 'Non-technical', lede: 'Brand, sports and consumer partnerships we helped bring to Web3 ecosystems, with their outcomes.' };
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Business', href: '/business/' }, { name: `${copy.title} curations`, href: `/business/${slug}/` }]}>
+  <div class="board">
+    <PageHero n={copy.n} label="Business" title={copy.title} accent="curations." lede={copy.lede} scene="curate">
+      <a slot="actions" href="/delegate/" class="btn btn-accent">Delegate your project</a>
+      <a slot="actions" href={kind === 'technical' ? '/business/non-technical-curations/' : '/business/technical-curations/'} class="btn">{kind === 'technical' ? 'Non-technical' : 'Technical'} curations</a>
+    </PageHero>
+    <section class="sheet" aria-labelledby="list">
+      <SheetHead n={copy.n} title={`${items.length} entries`} id="list" />
+      <div class="cells grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{items.map((c) => <CurationCard curation={c} n={all.indexOf(c) + 1} />)}</div>
+    </section>
+    <CTASheet scene="delegate" />
+  </div>
+</BaseLayout>

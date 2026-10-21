@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import CurationCard from '../../components/CurationCard.astro';
+import Placeholder from '../../components/Placeholder.astro';
+import Stamp from '../../components/Stamp.astro';
+import CTASheet from '../../components/CTASheet.astro';
+import { getCurations } from '../../lib/data';
+import { PAGE_META } from '../../lib/pages';
+
+const meta = PAGE_META['/business/'];
+const curations = await getCurations();
+const technical = curations.filter((c) => c.data.kind === 'technical');
+const nonTechnical = curations.filter((c) => c.data.kind === 'non-technical');
+const passed = curations.filter((c) => ['passed', 'completed'].includes(c.data.outcome)).length;
+const rejected = curations.filter((c) => c.data.outcome === 'rejected').length;
+const pending = curations.length - passed - rejected;
+const services = [
+  ['P-01', 'Proposal curation', 'Introduce your team to an ecosystem’s funding process (e.g. Polkadot OpenGov), scope the work, draft the proposal.'],
+  ['P-02', 'Technical guidance', 'Architecture, DevOps and integration guidance for Substrate, EVM and multi-chain projects.'],
+  ['P-03', 'Audit coordination', 'Scout and compare audit firms, run the funding, relay findings, publish the funds trace.'],
+  ['P-04', 'Operations & reporting', 'Multisig setup, milestone tracking, feedback collection, public progress reports.'],
+  ['P-05', 'Events & education', 'Workshops, hackathon tracks, mentoring and judging, at your campus or with your ecosystem.'],
+];
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Business', href: '/business/' }]}>
+  <div class="board">
+    <PageHero n="02" label="Business" title="Curation, reviews &" accent="delivery." lede="We help teams take projects through ecosystem funding, audits and launch. Here is every curation we've done, including the ones that didn't pass." scene="curate" meta={[['Curations', String(curations.length)], ['Passed / completed', String(passed)], ["Didn't pass", String(rejected)], ['Pending', String(pending)]]}>
+      <a slot="actions" href="/delegate/" class="btn btn-accent">Delegate your project</a>
+    </PageHero>
+
+    <section class="sheet" aria-labelledby="proc">
+      <SheetHead n="2.0" title="Procedures" id="proc" meta="What we do for teams" />
+      <ol class="cells grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
+        {services.map(([k, t, d]) => <li class="p-5 md:p-6"><p class="label num">{k}</p><h3 class="mt-6 font-semibold">{t}</h3><p class="mt-2 text-sm text-dim">{d}</p></li>)}
+      </ol>
+      <p class="label pad-x border-t border-line py-3"><Placeholder id="PH-07" inline /></p>
+    </section>
+
+    <section class="sheet" aria-labelledby="technical">
+      <SheetHead n="2.1" title="Technical curations" id="technical" href="/business/technical-curations/" linkLabel="Open sheet" meta={`${technical.length} entries`} />
+      <div class="cells grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{technical.map((c) => <CurationCard curation={c} n={curations.indexOf(c) + 1} />)}</div>
+    </section>
+
+    <section class="sheet" aria-labelledby="non-technical">
+      <SheetHead n="2.2" title="Non-technical curations" id="non-technical" href="/business/non-technical-curations/" linkLabel="Open sheet" meta={`${nonTechnical.length} entries`} />
+      <div class="cells grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{nonTechnical.map((c) => <CurationCard curation={c} n={curations.indexOf(c) + 1} />)}</div>
+    </section>
+
+    <section class="sheet" aria-labelledby="why">
+      <div class="cells grid-cols-1 lg:grid-cols-12">
+        <div class="pad lg:col-span-8">
+          <p class="redline">Redline note</p>
+          <h2 id="why" class="title mt-4 text-[clamp(1.6rem,3vw,2.4rem)]">A track record without the misses <span class="serif text-accent">isn't a track record.</span></h2>
+          <p class="mt-4 max-w-xl text-dim">Every outcome links to the on-chain vote or the original discussion. <a href="/blog/why-some-of-our-opengov-proposals-were-rejected/" class="text-accent underline underline-offset-4">What we learned from the ones that didn’t pass →</a></p>
+          <div class="mt-6"><Placeholder id="PH-19" /></div>
+        </div>
+        <div class="flex flex-wrap items-center justify-center gap-6 p-10 lg:col-span-4"><Stamp outcome="passed" size="lg" /><Stamp outcome="rejected" size="lg" /><Stamp outcome="pending" size="lg" /></div>
+      </div>
+    </section>
+    <CTASheet title="Bring us your" accent="project." text="Tell us what you're building and where you need expertise. We'll tell you honestly whether we're the right fit." scene="delegate" />
+  </div>
+</BaseLayout>

@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Placeholder from '../components/Placeholder.astro';
+import { PAGE_META } from '../lib/pages';
+import { SITE } from '../lib/site';
+const meta = PAGE_META['/contact/'];
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Contact', href: '/contact/' }]}>
+  <div class="board">
+    <PageHero n="09" label="Contact" title="Get in" accent="touch." lede="The fastest route depends on what you need." scene="delegate" />
+    <div class="sheet cells grid-cols-1 md:grid-cols-3">
+      {[['A project or partnership', 'Use the delegate form.', '/delegate/'], ['You want to contribute', 'Use the contribute form.', '/contribute/'], ['Anything else', `Message ${SITE.xHandle} on X.`, SITE.social.x]].map(([t, d, h], i) => (
+        <a href={h} class="cell-link flex flex-col p-6 md:p-8"><span class="label num">K-0{i + 1}</span><h2 class="title mt-10 text-2xl">{t}</h2><p class="mt-2 text-dim">{d} <span class="arrow">→</span></p></a>
+      ))}
+    </div>
+    <div class="sheet pad space-y-3 text-dim"><Placeholder id="PH-08" /><Placeholder id="PH-02" /></div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,9 @@
+---
+import EventCategory from '../../components/EventCategory.astro';
+const faq = [
+  { q: 'Where does GRYD host Web3 meetups?', a: 'We have hosted meetups in Bengaluru, Mumbai, Mangaluru, New Delhi, Pune, Hyderabad, Chennai, Nagpur, Ernakulam, Trivandrum, Manipal and Lucknow, mostly as part of series like Road to Sub0 India and Road to AssetHub Hackathon.' },
+  { q: 'Are GRYD meetups free?', a: 'Our meetups listed on Luma have been free to register, with spots sometimes limited by venue size or approved by the hosts.' },
+  { q: 'How do I find upcoming Web3 events in my city?', a: 'Follow the GRYD Events calendar on Luma (luma.com/TeamGRYD), which lists every event we host or co-host.' },
+];
+---
+<EventCategory type="meetup" groupBy="series" faq={faq} h1="Web3 meetups in Bangalore, Mumbai" accent="& across India." intro="Builder parties, Road to Sub0 and Road to AssetHub meetups, and city community nights. Each one is a way into building, hackathons and the GRYD community." />

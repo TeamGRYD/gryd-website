@@ -1,0 +1,24 @@
+---
+/** Curation as an inspection sheet with outcome stamp. */
+import type { CollectionEntry } from 'astro:content';
+import Stamp from './Stamp.astro';
+import { phValue } from '../data/placeholders';
+interface Props { curation: CollectionEntry<'curations'>; n?: number }
+const { curation, n } = Astro.props;
+const d = curation.data;
+const override = d.outcomePlaceholder ? phValue(d.outcomePlaceholder) : '';
+---
+<article class="cell-link flex h-full flex-col">
+  <div class="flex items-center justify-between border-b border-line px-5 py-2.5">
+    <span class="label num">{n !== undefined ? `C-${String(n).padStart(2, '0')}` : 'C'} · {d.dateLabel}</span>
+    <span class="label">{d.kind === 'technical' ? 'Technical' : 'Non-technical'}</span>
+  </div>
+  <div class="relative flex flex-1 flex-col p-5">
+    <div class="absolute right-4 top-4"><Stamp outcome={d.outcome} label={override || undefined} /></div>
+    <p class="label pr-28">{d.ecosystem}</p>
+    <h3 class="mt-3 pr-6 text-[1.2rem] font-semibold leading-snug"><a href={`/business/curations/${curation.id}/`} class="stretch">{d.title}</a></h3>
+    <p class="mt-1 text-sm text-dim">{d.client}</p>
+    <p class="mt-4 text-sm leading-relaxed text-dim">{d.outcomeNote}</p>
+    <p class="mt-auto border-t border-dashed border-line-2 pt-4 text-sm leading-relaxed"><span class="label mr-2">Our role</span>{d.ourRole}</p>
+  </div>
+</article>

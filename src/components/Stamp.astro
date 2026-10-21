@@ -1,0 +1,18 @@
+---
+/** Inspection stamp for curation outcomes. */
+interface Props { outcome: 'passed' | 'completed' | 'rejected' | 'not-submitted' | 'pending'; label?: string; size?: 'sm' | 'lg' }
+const { outcome, label, size = 'sm' } = Astro.props;
+const text = label ?? { passed: 'Passed', completed: 'Completed', rejected: "Didn't pass", 'not-submitted': 'Not submitted', pending: 'Pending' }[outcome];
+const tone = outcome === 'rejected' ? 'red' : outcome === 'pending' || outcome === 'not-submitted' ? 'amber' : 'ok';
+---
+<span class:list={['stamp', tone, size]}><span>{text}</span></span>
+<style>
+  .stamp { display: inline-block; transform: rotate(-5deg); border: 1.5px solid currentColor; padding: 2px; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .12em; font-weight: 600; }
+  .stamp > span { display: block; border: 1px solid currentColor; padding: .25rem .55rem; }
+  .sm { font-size: .625rem; }
+  .lg { font-size: .9rem; }
+  .lg > span { padding: .45rem .9rem; }
+  .ok { color: var(--accent); }
+  .red { color: var(--red); }
+  .amber { color: var(--amber); }
+</style>

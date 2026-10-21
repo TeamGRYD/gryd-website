@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHero from '../../components/PageHero.astro';
+import SheetHead from '../../components/SheetHead.astro';
+import PostCard from '../../components/PostCard.astro';
+import CTASheet from '../../components/CTASheet.astro';
+import { getPosts } from '../../lib/data';
+import { PAGE_META } from '../../lib/pages';
+const meta = PAGE_META['/blog/'];
+const posts = await getPosts();
+const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
+---
+<BaseLayout title={meta.title} description={meta.description} crumbs={[{ name: 'Blog', href: '/blog/' }]}>
+  <div class="board">
+    <PageHero n="04" label="Blog · technical notes" title="Field notes on building, curating &" accent="teaching." lede="Case studies, playbooks and honest retrospectives from the GRYD collective." scene="curate" />
+    <nav class="pad-x flex flex-wrap gap-2 border-t border-line py-3" aria-label="Tags">
+      {tags.map((t) => <a href={`/blog/tags/${t}/`} class="tag hover:text-fg">#{t}</a>)}
+    </nav>
+    <section class="sheet" aria-labelledby="notes">
+      <SheetHead n="4.0" title={`${posts.length} notes`} id="notes" meta="Newest first" />
+      <div class="cells grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{posts.map((p, i) => <PostCard post={p} n={posts.length - i} />)}</div>
+    </section>
+    <CTASheet />
+  </div>
+</BaseLayout>

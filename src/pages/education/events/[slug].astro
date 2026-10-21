@@ -1,0 +1,73 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Sources from '../../../components/Sources.astro';
+import EventCard from '../../../components/EventCard.astro';
+import SheetHead from '../../../components/SheetHead.astro';
+import Iso from '../../../components/Iso.astro';
+import CTASheet from '../../../components/CTASheet.astro';
+import { getEvents } from '../../../lib/data';
+import { eventTypeLabel, eventRoleLabel, eventTypeMeta, fmtRange } from '../../../lib/labels';
+import { ORG_ID } from '../../../lib/schema';
+import { absUrl } from '../../../lib/site';
+
+export async function getStaticPaths() {
+  const all = await getEvents();
+  return all.filter((e) => e.data.highlight).map((e) => ({ params: { slug: e.id }, props: { event: e, all } }));
+}
+const { event, all } = Astro.props;
+const d = event.data;
+const { Content } = await render(event);
+const m = eventTypeMeta[d.type];
+const past = (d.end ?? d.start).getTime() < Date.now();
+const related = all.filter((e) => e.id !== event.id && e.data.highlight && (e.data.type === d.type || e.data.series === d.series)).slice(0, 3);
+const scene = { meetup: 'city', workshop: 'educate', hackathon: 'build', 'hacker-house': 'contribute' }[d.type] as 'city';
+const schema = {
+  '@type': 'Event', name: d.title, description: d.summary, startDate: d.start.toISOString(), ...(d.end ? { endDate: d.end.toISOString() } : {}),
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: d.online ? 'https://schema.org/OnlineEventAttendanceMode' : 'https://schema.org/OfflineEventAttendanceMode',
+  location: d.online ? { '@type': 'VirtualLocation', url: d.lumaUrl ?? absUrl(`/education/events/${event.id}/`) } : { '@type': 'Place', name: d.venue ?? d.city, address: { '@type': 'PostalAddress', addressLocality: d.city, ...(d.region ? { addressRegion: d.region } : {}), addressCountry: 'IN' } },
+  organizer: [{ '@id': ORG_ID }, ...d.partners.map((p) => ({ '@type': 'Organization', name: p }))],
+  url: absUrl(`/education/events/${event.id}/`), image: absUrl(`/og/education/events/${event.id}.png`), isAccessibleForFree: true,
+};
+---
+<BaseLayout title={`${d.title} | GRYD`} description={d.summary} crumbs={[{ name: 'Education', href: '/education/' }, { name: m.title, href: `/education/${m.slug}/` }, { name: d.title, href: `/education/events/${event.id}/` }]} schema={[schema]}>
+  <div class="board">
+    <article>
+      <header class="sheet">
+        <div class="cells grid-cols-1 lg:grid-cols-12">
+          <div class="pad pt-10 md:pt-14 lg:col-span-8">
+            <p class="label"><span class="num text-fg">{past ? 'LOG' : 'UPCOMING'}</span> · {eventTypeLabel[d.type]}{d.series ? ` · ${d.series}` : ''}</p>
+            <h1 class="display mt-6 text-[clamp(2rem,4.6vw,4rem)]">{d.title}</h1>
+            <p class="lede mt-6">{d.summary}</p>
+            {d.lumaUrl && <a href={d.lumaUrl} rel="noopener" class:list={['btn btn-ext mt-8', { 'btn-accent': !past }]}>{past ? 'Event page on Luma' : 'Register on Luma'}</a>}
+          </div>
+          <div class="hidden items-center justify-center p-10 lg:col-span-4 lg:flex"><div class="w-56"><Iso scene={scene} now /></div></div>
+        </div>
+        <dl class="cells grid-cols-2 border-t border-line md:grid-cols-4">
+          <div class="px-4 py-3 md:px-6"><dt class="label">Date</dt><dd class="num mt-1 text-sm"><time datetime={d.start.toISOString()}>{fmtRange(d.start, d.end)}</time></dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Where</dt><dd class="mt-1 text-sm">{d.venue ? `${d.venue}, ` : ''}{d.city}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">Our role</dt><dd class="mt-1 text-sm">{eventRoleLabel[d.role]}</dd></div>
+          <div class="px-4 py-3 md:px-6"><dt class="label">{d.registrations ? 'Registrations (Luma)' : 'Attendance'}</dt><dd class="num mt-1 text-sm">{d.registrations ?? d.attendanceReported ?? '—'}</dd></div>
+        </dl>
+      </header>
+      <section class="sheet">
+        <div class="cells grid-cols-1 lg:grid-cols-12">
+          <div class="pad py-10 lg:col-span-8"><div class="prose"><Content /></div><Sources sources={d.sources} /></div>
+          <aside class="lg:col-span-4" aria-label="Event facts">
+            {d.partners.length > 0 && <div class="border-b border-line px-5 py-4 md:px-7"><p class="label">With</p><ul class="mt-2 space-y-1 text-sm">{d.partners.map((p) => <li>{p}</li>)}</ul></div>}
+            {d.attendanceReported && <div class="border-b border-line px-5 py-4 md:px-7"><p class="label">Attendance (reported)</p><p class="mt-1 text-sm">{d.attendanceReported}</p></div>}
+            <div class="px-5 py-4 md:px-7"><p class="label">Note</p><p class="mt-1 text-sm text-dim">Luma registrations are not verified attendance.</p></div>
+          </aside>
+        </div>
+      </section>
+    </article>
+    {related.length > 0 && (
+      <section class="sheet" aria-labelledby="rel">
+        <SheetHead n="→" title="Related events" id="rel" href={`/education/${m.slug}/`} linkLabel={`All ${m.title.toLowerCase()}`} />
+        <div class="cells grid-cols-1 md:grid-cols-3">{related.map((e) => <EventCard event={e} />)}</div>
+      </section>
+    )}
+    <CTASheet scene="educate" />
+  </div>
+</BaseLayout>

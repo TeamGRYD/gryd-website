@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Wordmark from '../components/Wordmark.astro';
+---
+<BaseLayout title="Page not found | GRYD" description="This page doesn't exist. Try Builders, Business, Education or the Blog." noindex>
+  <div class="board">
+    <section class="sheet pad py-16 md:py-24">
+      <p class="redline">Error 404 · sheet missing from set</p>
+      <h1 class="display mt-6 text-[clamp(2.6rem,8vw,7rem)]">Off the <span class="serif text-accent">grid.</span></h1>
+      <p class="lede mt-6">That page doesn't exist, or it moved when Edgetributor SubDAO became GRYD.</p>
+      <form action="/search/" class="mt-8 flex max-w-lg" role="search">
+        <label for="q404" class="sr-only">Search the site</label>
+        <input id="q404" name="q" type="search" placeholder="Search projects, events, notes…" class="w-full border border-line-2 bg-sheet px-4 py-3 font-mono text-sm" />
+        <button class="btn btn-accent">Search</button>
+      </form>
+      <div class="mt-10 flex flex-wrap gap-3">{[['Builders', '/builders/'], ['Business', '/business/'], ['Education', '/education/'], ['Blog', '/blog/'], ['Agents', '/agents/']].map(([l, h]) => <a href={h} class="btn btn-sm">{l}</a>)}</div>
+      <div class="mt-16 max-w-md opacity-40"><Wordmark animate={false} /></div>
+    </section>
+  </div>
+</BaseLayout>
